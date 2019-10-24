@@ -1,0 +1,20 @@
+\begin{tikzpicture}
+\pgfplotstableread[col sep=comma, header=true]{/home/david/Documents/Projects/github/CalibrationPaper/paper/../experiments/data/PyTorch-CIFAR10/errors.csv}\datatable
+\begin{groupplot}[group style={group size={1 by 2}, xlabels at={edge bottom}, vertical sep={0.15\linewidth}}, ybar={0pt}, ymajorgrids, width={0.8\linewidth}, height={0.3\linewidth}, xlabel={model}, xticklabels={DenseNet121,DenseNet161,DenseNet169,GoogLeNet,Inception,MobileNet,ResNet,ResNet18,ResNet34,ResNet50,VGG11,VGG13,VGG16,VGG19}, xtick={data}, xticklabel style={rotate={45}, anchor={east}, font={\tiny}}, legend style={cells={anchor={west}}, legend pos={outer north east}, font={\small}}, cycle list={{Dark2-A,fill=Dark2-A!30!white,mark=none}, {Dark2-B,fill=Dark2-B!30!white,mark=none}, {Dark2-C,fill=Dark2-C!30!white,mark=none}}]
+    \nextgroupplot[title={$\widehat{\ECE}$}, bar width={7pt}]
+    \addplot
+        table[x expr={\coordindex}, y={ECE_uniform}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={ECE_dynamic}] {\datatable};
+    \legend{{uniform size},{data-dependent}}
+    \nextgroupplot[title={$\widehat{\squaredkernelmeasure}$}, bar width={5pt}]
+    \addplot
+        table[x expr={\coordindex}, y={SKCEb_median}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEuq_median}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEul_median}] {\datatable};
+    \legend{{$\biasedestimator$},{$\unbiasedestimator$},{$\linearestimator$}}
+\end{groupplot}
+\node[anchor=south, rotate=90] at ($(group c1r1.north -| group c1r1.outer west)!0.5!(group c1r2.south -| group c1r2.outer west)$){calibration error estimate};
+\end{tikzpicture}

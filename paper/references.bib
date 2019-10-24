@@ -1,0 +1,396 @@
+@InProceedings{kumar18_train_calib_measur_neural_networ,
+  author =       {Kumar, Aviral and Sarawagi, Sunita and Jain, Ujjwal},
+  title =        {Trainable Calibration Measures for Neural Networks
+                  from Kernel Mean Embeddings},
+  booktitle =    {Proceedings of the 35th International Conference on
+                  Machine Learning},
+  year =         2018,
+  volume =       80,
+  pages =        {2805--2814},
+  abstract =     {Modern neural networks have recently been found to
+                  be poorly calibrated, primarily in the direction of
+                  over-confidence. Methods like entropy penalty and
+                  temperature smoothing improve calibration by
+                  clamping confidence, but in doing so compromise the
+                  many legitimately confident predictions. We propose
+                  a more principled fix that minimizes an explicit
+                  calibration error during training. We present MMCE,
+                  a RKHS kernel based measure of calibration that is
+                  efficiently trainable alongside the negative
+                  likelihood loss without careful hyper-parameter
+                  tuning. Theoretically too, MMCE is a sound measure
+                  of calibration that is minimized at perfect
+                  calibration, and whose finite sample estimates are
+                  consistent and enjoy fast convergence
+                  rates. Extensive experiments on several network
+                  architectures demonstrate that MMCE is a fast,
+                  stable, and accurate method to minimize calibration
+                  error while maximally preserving the number of high
+                  confidence predictions.},
+  pdf =
+                  {http://proceedings.mlr.press/v80/kumar18a/kumar18a.pdf},
+  series =       {Proceedings of Machine Learning Research},
+}
+
+@article{carmeli10_vector_valued_reprod_kernel_hilber_spaces_univer,
+  author =       {Carmeli, C. and De Vito, E. and Toigo, A. and
+                  Umanit{\`a}, V.},
+  title =        {Vector Valued Reproducing Kernel {Hilbert} Spaces
+                  and Universality},
+  journal =      {Analysis and Applications},
+  volume =       {08},
+  number =       {01},
+  pages =        {19--61},
+  year =         {2010},
+  month =        {01},
+}
+
+@InProceedings{vaicenavicius19_evaluat,
+  author =       {Vaicenavicius, Juozas and Widmann, David and
+                  Andersson, Carl and Lindsten, Fredrik and Roll,
+                  Jacob and Sch\"{o}n, Thomas B.},
+  title =        {Evaluating model calibration in classification},
+  booktitle =    {Proceedings of Machine Learning Research},
+  year =         2019,
+  volume =       89,
+  pages =        {3459--3467},
+  abstract =     {Probabilistic classifiers output a probability
+                  distribution on target classes rather than just a
+                  class prediction. Besides providing a clear
+                  separation of prediction and decision making, the
+                  main advantage of probabilistic models is their
+                  ability to represent uncertainty about
+                  predictions. In safety-critical applications, it is
+                  pivotal for a model to possess an adequate sense of
+                  uncertainty, which for probabilistic classifiers
+                  translates into outputting probability distributions
+                  that are consistent with the empirical frequencies
+                  observed from realized outcomes. A classifier with
+                  such a property is called calibrated. In this work,
+                  we develop a general theoretical calibration
+                  evaluation framework grounded in probability theory,
+                  and point out subtleties present in model
+                  calibration evaluation that lead to refined
+                  interpretations of existing evaluation
+                  techniques. Lastly, we propose new ways to quantify
+                  and visualize miscalibration in probabilistic
+                  classification, including novel multidimensional
+                  reliability diagrams.},
+  series =       {Proceedings of Machine Learning Research},
+}
+
+@InProceedings{guo17_calib_moder_neural_networ,
+  author =       {Chuan Guo and Geoff Pleiss and Yu Sun and Kilian
+                  Q. Weinberger},
+  title =        {On Calibration of Modern Neural Networks},
+  booktitle =    {Proceedings of the 34th International Conference on
+                  Machine Learning},
+  year =         2017,
+  volume =       70,
+  pages =        {1321--1330},
+  abstract =     {Confidence calibration - the problem of predicting
+                  probability estimates representative of the true
+                  correctness likelihood - is important for
+                  classification models in many applications. We
+                  discover that modern neural networks, unlike those
+                  from a decade ago, are poorly calibrated. Through
+                  extensive experiments, we observe that depth, width,
+                  weight decay, and Batch Normalization are important
+                  factors influencing calibration. We evaluate the
+                  performance of various post-processing calibration
+                  methods on state-of-the-art architectures with image
+                  and document classification datasets. Our analysis
+                  and experiments not only offer insights into neural
+                  network learning, but also provide a simple and
+                  straightforward recipe for practical settings: on
+                  most datasets, temperature scaling - a
+                  single-parameter variant of Platt Scaling - is
+                  surprisingly effective at calibrating predictions.},
+  pdf =          {http://proceedings.mlr.press/v70/guo17a/guo17a.pdf},
+  series =       {Proceedings of Machine Learning Research},
+}
+
+@article{micchelli05_learn_vector_valued_funct,
+  author =       {Charles A. Micchelli and Massimiliano Pontil},
+  title =        {On Learning Vector-Valued Functions},
+  journal =      {Neural Computation},
+  volume =       {17},
+  number =       {1},
+  pages =        {177--204},
+  year =         {2005},
+  DATE_ADDED =   {Tue Mar 26 16:15:48 2019},
+}
+
+@article{caponnetto08_univer_multi_task_kernel,
+  author =       {Caponnetto, Andrea and Micchelli, Charles A. and
+                  Pontil, Massimiliano and Ying, Yiming},
+  title =        {Universal Multi-Task Kernels},
+  journal =      {Journal of Machine Learning Research},
+  volume =       {9},
+  pages =        {1615--1646},
+  year =         {2008},
+  acmid =        {1442785},
+  issue_date =   {6/1/2008},
+  month =        6,
+  numpages =     {32},
+}
+
+@book{berlinet04_reprod_kernel_hilber_spaces_probab_statis,
+  author =       {Alain Berlinet and Christine Thomas-Agnan},
+  title =        {Reproducing Kernel Hilbert Spaces in Probability and
+                  Statistics},
+  year =         2004,
+  publisher =    {Springer {US}},
+}
+
+@book{rudin86_real,
+  author =       {Walter Rudin},
+  title =        {Real and complex analysis},
+  year =         1986,
+  publisher =    {McGraw-Hill},
+  address =      {New York},
+  edition =      3,
+  language =     {English},
+}
+
+@book{christmann08_suppor_vector_machin,
+  author =       {Christmann, Andreas and Steinwart, Ingo},
+  title =        {Support Vector Machines},
+  year =         2008,
+  publisher =    {Springer New York},
+  series =       {Information Science and Statistics},
+}
+
+@article{gretton12_kernel_two_sampl_test,
+  author =       {Gretton, Arthur and Borgwardt, Karsten M. and Rasch,
+                  Malte J. and Sch\"{o}lkopf, Bernhard and Smola,
+                  Alexander},
+  title =        {A Kernel Two-Sample Test},
+  journal =      {Journal of Machine Learning Research},
+  volume =       {13},
+  pages =        {723--773},
+  year =         {2012},
+  acmid =        {2188410},
+  issue_date =   {3/1/2012},
+  month =        3,
+  numpages =     {51},
+}
+
+@article{hoeffding63_probab_inequal_sums_bound_random_variab,
+  author =       {Wassily Hoeffding},
+  title =        {Probability Inequalities for Sums of Bounded Random
+                  Variables},
+  journal =      {Journal of the American Statistical Association},
+  volume =       {58},
+  number =       {301},
+  pages =        {13--30},
+  year =         {1963},
+  DATE_ADDED =   {Wed Mar 27 15:49:09 2019},
+}
+
+@article{broecker07_increas_reliab_reliab_diagr,
+  author =       {Jochen Br{\"o}cker and Leonard A. Smith},
+  title =        {Increasing the Reliability of Reliability Diagrams},
+  journal =      {Weather and Forecasting},
+  volume =       {22},
+  number =       {3},
+  pages =        {651--661},
+  year =         2007,
+  month =        {6},
+  publisher =    {American Meteorological Society},
+}
+
+@article{kiureghian09_aleat_or_epist,
+  author =       {Armen Der Kiureghian and Ove Ditlevsen},
+  title =        {Aleatory Or Epistemic? {Does} It Matter?},
+  journal =      {Structural Safety},
+  volume =       {31},
+  number =       {2},
+  pages =        {105--112},
+  year =         {2009},
+  month =        {3},
+  publisher =    {Elsevier {BV}},
+}
+
+@article{murphy77_reliab_subjec_probab_forec_precip_temper,
+  author =       {Allan H. Murphy and Robert L. Winkler},
+  title =        {Reliability of Subjective Probability Forecasts of
+                  Precipitation and Temperature},
+  journal =      {Applied Statistics},
+  volume =       {26},
+  number =       {1},
+  pages =        {41},
+  year =         {1977},
+  publisher =    {{JSTOR}},
+}
+
+@article{degroot83_compar_evaluat_forec,
+  author =       {Morris H. DeGroot and Stephen E. Fienberg},
+  title =        {The Comparison and Evaluation of Forecasters},
+  journal =      {The Statistician},
+  volume =       {32},
+  number =       {1/2},
+  pages =        {12},
+  year =         {1983},
+  month =        {3},
+  publisher =    {{JSTOR}},
+}
+
+@article{aronszajn50_theor_reprod_kernel,
+  author =       {N. Aronszajn},
+  title =        {Theory of Reproducing Kernels},
+  journal =      {Transactions of the American Mathematical Society},
+  volume =       {68},
+  number =       {3},
+  pages =        {337--337},
+  year =         {1950},
+  month =        {3},
+  publisher =    {American Mathematical Society ({AMS})},
+}
+
+@inproceedings{zadrozny02_trans,
+  author =       {Bianca Zadrozny and Charles Elkan},
+  title =        {Transforming classifier scores into accurate
+                  multiclass probability estimates},
+  booktitle =    {Proceedings of the eighth {ACM} {SIGKDD}
+                  international conference on Knowledge discovery and
+                  data mining - {KDD}},
+  year =         2002,
+  publisher =    {{ACM} Press},
+}
+
+@article{broecker09_reliab_suffic_decom_proper_scores,
+  year =         {2009},
+  month =        {7},
+  publisher =    {Wiley},
+  volume =       {135},
+  number =       {643},
+  pages =        {1512--1519},
+  author =       {Jochen Br\"{o}cker},
+  title =        {Reliability, Sufficiency, and the Decomposition of
+                  Proper Scores},
+  journal =      {Quarterly Journal of the Royal Meteorological
+                  Society}
+}
+
+@book{vaart96_weak_conver_empir_proces,
+  author =       {Aad W. van der Vaart and Jon A. Wellner},
+  title =        {Weak Convergence and Empirical Processes},
+  year =         1996,
+  publisher =    {Springer New York},
+}
+
+@article{bartlett02_radem_gauss_compl,
+  author =       {Bartlett, Peter L and Mendelson, Shahar},
+  title =        {Rademacher and {Gaussian} Complexities: Risk Bounds
+                  and Structural Results},
+  journal =      {Journal of Machine Learning Research},
+  volume =       {3},
+  pages =        {463--482},
+  year =         {2002},
+}
+
+@book{serfling80_approx_theor_mathem_statis,
+  title =        {Approximation Theorems of Mathematical Statistics},
+  year =         {1980},
+  publisher =    {John Wiley {\&} Sons, Inc.},
+  editor =       {Robert J. Serfling},
+  month =        11,
+}
+
+@book{vaart98_asymp_statis,
+  author =       {A. W. van der Vaart},
+  title =        {Asymptotic Statistics},
+  year =         1998,
+  publisher =    {Cambridge University Press},
+}
+
+@article{arcones92_boots_u_v_statis,
+  author =       {Arcones, Miguel A and Gin{\'e}, Evarist},
+  title =        {On the Bootstrap of {$U$} and {$V$} Statistics},
+  journal =      {The Annals of Statistics},
+  volume =       20,
+  number =       2,
+  pages =        {655--674},
+  year =         {1992},
+  publisher =    {JSTOR},
+}
+
+@article{hoeffding48_class_statis_with_asymp_normal_distr,
+  author =       {Wassily Hoeffding},
+  title =        {A Class of Statistics With Asymptotically Normal
+                  Distribution},
+  journal =      {The Annals of Mathematical Statistics},
+  volume =       {19},
+  number =       {3},
+  pages =        {293--325},
+  year =         {1948},
+  month =        {9},
+  publisher =    {Institute of Mathematical Statistics},
+}
+
+@inproceedings{naeini15_obtain_bayes,
+  author =       {Naeini, Mahdi Pakdaman and Cooper, Gregory and
+                  Hauskrecht, Milos},
+  title =        {Obtaining well calibrated probabilities using
+                  {Bayesian} binning},
+  booktitle =    {Twenty-Ninth {AAAI} Conference on Artificial
+                  Intelligence},
+  year =         2015,
+}
+
+@online{widmann19_consis_resampling,
+  author =       {David Widmann},
+  doi =          {10.5281/zenodo.3232854},
+  month =        may,
+  title =        {{devmotion/ConsistencyResampling.jl}: v0.2.0},
+  url =          {https://doi.org/10.5281/zenodo.3232854},
+  year =         2019,
+}
+
+@online{widmann19_calib_errors,
+  author =       {David Widmann},
+  doi =          {10.5281/zenodo.3457945},
+  month =        sep,
+  title =        {{devmotion/CalibrationErrors.jl}: v0.1.0},
+  url =          {https://doi.org/10.5281/zenodo.3457945},
+  year =         2019,
+}
+
+@online{widmann19_calib_tests,
+  author =       {David Widmann},
+  doi =          {10.5281/zenodo.3514933},
+  month =        oct,
+  publisher =    {Zenodo},
+  title =        {{devmotion/CalibrationTests.jl}: v0.1.0},
+  url =          {https://doi.org/10.5281/zenodo.3514933},
+  version =      {v0.1.0},
+  year =         2019,
+}
+
+@online{phan19_pytor_cifar,
+  author =       {Huy Phan},
+  title =        {{PyTorch-CIFAR10}},
+  url =          {https://github.com/huyvnphan/PyTorch-CIFAR10/},
+  version =      {commit 9032533},
+  year =         2019,
+}
+
+@article{krizhevsky09_learn_multip_layer_featur_from_tiny_images,
+  author =       {Alex Krizhevsky},
+  title =        {Learning Multiple Layers of Features From Tiny
+                  Images},
+  year =         {2009},
+}
+
+@article{pastell17_weave,
+  author =       {Matti Pastell},
+  title =        {Weave.jl: Scientific Reports Using {Julia}},
+  journal =      {The Journal of Open Source Software},
+  volume =       {2},
+  number =       {11},
+  pages =        {204},
+  year =         {2017},
+  month =        mar,
+  publisher =    {The Open Journal},
+}

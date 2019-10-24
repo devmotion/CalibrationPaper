@@ -1,0 +1,12 @@
+*/auto/
+
+*.aux
+*.auxlock
+*.bcf
+*.blg
+*.brf
+*.log
+*.out
+*.run.xml
+
+*/cache/

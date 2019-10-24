@@ -1,0 +1,38 @@
+\begin{tikzpicture}
+\pgfplotstableread[col sep=comma, header=true]{/home/david/Documents/Projects/github/CalibrationPaper/paper/../experiments/data/PyTorch-CIFAR10/pvalues.csv}\datatable
+\begin{groupplot}[group style={group size={1 by 2}, xlabels at={edge bottom}, vertical sep={0.1\linewidth}}, ybar={0pt}, ymajorgrids, width={0.9\linewidth}, height={0.3\linewidth}, xlabel={model}, xtick={data}, xticklabel style={rotate={45}, anchor={east}, font={\tiny}}, legend style={legend columns={-1}, /tikz/every even column/.append style={column sep={0.05\linewidth}}, font={\small}}, cycle list={{Dark2-A,fill=Dark2-A!30!white,mark=none}, {Dark2-B,fill=Dark2-B!30!white,mark=none}, {Dark2-C,fill=Dark2-C!30!white,mark=none}, {Dark2-D,fill=Dark2-D!30!white,mark=none}, {Dark2-E,fill=Dark2-E!30!white,mark=none}, {Dark2-F,fill=Dark2-F!30!white,mark=none}, {Dark2-G,fill=Dark2-G!30!white,mark=none}}]
+    \nextgroupplot[xticklabels={DenseNet121,DenseNet161,DenseNet169,GoogLeNet,Inception,MobileNet,ResNet}, skip coords between index={{7}{14}}, legend to name={cifar10_pvalues_legend}, bar width={5pt}]
+    \addplot
+        table[x expr={\coordindex}, y={ECE_uniform}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={ECE_dynamic}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEb_median_distribution_free}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEuq_median_distribution_free}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEul_median_distribution_free}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEuq_median_asymptotic}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEul_median_asymptotic}] {\datatable};
+    \legend{{$\mathbf{C}_{\mathrm{uniform}}$},{$\mathbf{C}_{\mathrm{data-dependent}}$},{$\mathbf{D}_{\mathrm{b}}$},{$\mathbf{D}_{\mathrm{uq}}$},{$\mathbf{D}_{\mathrm{l}}$},{$\mathbf{A}_{\mathrm{uq}}$},{$\mathbf{A}_{\mathrm{l}}$}}
+    \nextgroupplot[xticklabels={ResNet18,ResNet34,ResNet50,VGG11,VGG13,VGG16,VGG19}, skip coords between index={{0}{7}}, bar width={5pt}]
+    \addplot
+        table[x expr={\coordindex}, y={ECE_uniform}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={ECE_dynamic}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEb_median_distribution_free}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEuq_median_distribution_free}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEul_median_distribution_free}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEuq_median_asymptotic}] {\datatable};
+    \addplot
+        table[x expr={\coordindex}, y={SKCEul_median_asymptotic}] {\datatable};
+\end{groupplot}
+\node[anchor=north] at ($(group c1r2.west |- group c1r2.outer south)!0.5!(group c1r2.east |- group c1r2.outer south)$){\pgfplotslegendfromname{cifar10_pvalues_legend}};
+\node[anchor=south, rotate=90] at ($(group c1r1.north -| group c1r1.outer west)!0.5!(group c1r2.south -| group c1r2.outer west)$){bound/approximation of p-value};
+\end{tikzpicture}

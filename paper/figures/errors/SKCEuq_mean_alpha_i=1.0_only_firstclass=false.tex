@@ -1,0 +1,555 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size={5 by 4}, xlabels at={edge bottom}, ylabels at={edge left}, horizontal sep={0.07\linewidth}, vertical sep={0.05\linewidth}}, no markers, grid={major}, tick label style={font={\tiny}}, width={0.23\linewidth}, height={0.2\linewidth}, xticklabel style={/pgf/number format/fixed}, ylabel style={font={\small}}, every x tick scale label/.style={at={{(1,0)}}, anchor={west}}]
+    \nextgroupplot[title={$\pi = 0.0$}, ylabel={$m = 2$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.002  604.0  \\
+            -0.001  5936.0  \\
+            0.0  2130.0  \\
+            0.001  807.0  \\
+            0.002  303.0  \\
+            0.003  127.0  \\
+            0.004  58.0  \\
+            0.005  21.0  \\
+            0.006  6.0  \\
+            0.007  3.0  \\
+            0.008  1.0  \\
+            0.009  2.0  \\
+            0.01  2.0  \\
+            0.011  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (-2.3630254463359044e-5,\pgfkeysvalueof{/pgfplots/ymin})--(-2.3630254463359044e-5,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (-2.3630254463359044e-5,\pgfkeysvalueof{/pgfplots/ymin})--(-2.3630254463359044e-5,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (-2.3630254463359044e-5,0)
+        }
+        ;
+    \nextgroupplot[title={$\pi = 0.25$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.002  1210.0  \\
+            0.0  4335.0  \\
+            0.002  2842.0  \\
+            0.004  1085.0  \\
+            0.006  378.0  \\
+            0.008  107.0  \\
+            0.01  30.0  \\
+            0.012  8.0  \\
+            0.014  4.0  \\
+            0.016  1.0  \\
+            0.018  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.002129679927567247,\pgfkeysvalueof{/pgfplots/ymin})--(0.002129679927567247,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.002129679927567247,\pgfkeysvalueof{/pgfplots/ymin})--(0.002129679927567247,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.002129679927567247,0)
+        }
+        ;
+    \nextgroupplot[title={$\pi = 0.5$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.002  1.0  \\
+            0.0  193.0  \\
+            0.002  884.0  \\
+            0.004  1701.0  \\
+            0.006  2149.0  \\
+            0.008  1898.0  \\
+            0.01  1450.0  \\
+            0.012  836.0  \\
+            0.014  438.0  \\
+            0.016  257.0  \\
+            0.018  109.0  \\
+            0.02  53.0  \\
+            0.022  16.0  \\
+            0.024  9.0  \\
+            0.026  5.0  \\
+            0.028  1.0  \\
+            0.03  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.00851549151930638,\pgfkeysvalueof{/pgfplots/ymin})--(0.00851549151930638,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.00851549151930638,\pgfkeysvalueof{/pgfplots/ymin})--(0.00851549151930638,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.00851549151930638,0)
+        }
+        ;
+    \nextgroupplot[title={$\pi = 0.75$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            0.0  12.0  \\
+            0.005  478.0  \\
+            0.01  2145.0  \\
+            0.015  3223.0  \\
+            0.02  2513.0  \\
+            0.025  1139.0  \\
+            0.03  373.0  \\
+            0.035  100.0  \\
+            0.04  15.0  \\
+            0.045  2.0  \\
+            0.05  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.019120102897908397,\pgfkeysvalueof{/pgfplots/ymin})--(0.019120102897908397,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.019120102897908397,\pgfkeysvalueof{/pgfplots/ymin})--(0.019120102897908397,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.019120102897908397,0)
+        }
+        ;
+    \nextgroupplot[title={$\pi = 1.0$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            0.005  1.0  \\
+            0.01  30.0  \\
+            0.015  293.0  \\
+            0.02  1107.0  \\
+            0.025  2005.0  \\
+            0.03  2335.0  \\
+            0.035  2010.0  \\
+            0.04  1220.0  \\
+            0.045  623.0  \\
+            0.05  250.0  \\
+            0.055  95.0  \\
+            0.06  19.0  \\
+            0.065  10.0  \\
+            0.07  1.0  \\
+            0.075  1.0  \\
+            0.08  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.03391667499800495,\pgfkeysvalueof{/pgfplots/ymin})--(0.03391667499800495,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.03391667499800495,\pgfkeysvalueof{/pgfplots/ymin})--(0.03391667499800495,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.03391667499800495,0)
+        }
+        ;
+    \nextgroupplot[ylabel={$m = 10$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0015  164.0  \\
+            -0.001  2001.0  \\
+            -0.0005  3378.0  \\
+            0.0  2485.0  \\
+            0.0005  1249.0  \\
+            0.001  455.0  \\
+            0.0015  197.0  \\
+            0.002  50.0  \\
+            0.0025  17.0  \\
+            0.003  3.0  \\
+            0.0035  1.0  \\
+            0.004  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (9.297107744106015e-6,\pgfkeysvalueof{/pgfplots/ymin})--(9.297107744106015e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (9.297107744106015e-6,\pgfkeysvalueof{/pgfplots/ymin})--(9.297107744106015e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (9.297107744106015e-6,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0015  100.0  \\
+            -0.001  1485.0  \\
+            -0.0005  3274.0  \\
+            0.0  2699.0  \\
+            0.0005  1467.0  \\
+            0.001  638.0  \\
+            0.0015  228.0  \\
+            0.002  76.0  \\
+            0.0025  21.0  \\
+            0.003  10.0  \\
+            0.0035  2.0  \\
+            0.004  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.00011636294436551597,\pgfkeysvalueof{/pgfplots/ymin})--(0.00011636294436551597,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.00011636294436551597,\pgfkeysvalueof{/pgfplots/ymin})--(0.00011636294436551597,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.00011636294436551597,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0015  4.0  \\
+            -0.001  496.0  \\
+            -0.0005  2262.0  \\
+            0.0  3100.0  \\
+            0.0005  2195.0  \\
+            0.001  1181.0  \\
+            0.0015  481.0  \\
+            0.002  171.0  \\
+            0.0025  78.0  \\
+            0.003  18.0  \\
+            0.0035  8.0  \\
+            0.004  4.0  \\
+            0.0045  1.0  \\
+            0.005  1.0  \\
+            0.0055  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.00045365403927170964,\pgfkeysvalueof{/pgfplots/ymin})--(0.00045365403927170964,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.00045365403927170964,\pgfkeysvalueof{/pgfplots/ymin})--(0.00045365403927170964,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.00045365403927170964,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.001  17.0  \\
+            -0.0005  532.0  \\
+            0.0  2098.0  \\
+            0.0005  2927.0  \\
+            0.001  2224.0  \\
+            0.0015  1278.0  \\
+            0.002  564.0  \\
+            0.0025  214.0  \\
+            0.003  91.0  \\
+            0.0035  38.0  \\
+            0.004  7.0  \\
+            0.0045  6.0  \\
+            0.005  4.0  \\
+            0.0055  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.0009986493420805764,\pgfkeysvalueof{/pgfplots/ymin})--(0.0009986493420805764,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.0009986493420805764,\pgfkeysvalueof{/pgfplots/ymin})--(0.0009986493420805764,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.0009986493420805764,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0005  2.0  \\
+            0.0  175.0  \\
+            0.0005  1279.0  \\
+            0.001  2462.0  \\
+            0.0015  2603.0  \\
+            0.002  1771.0  \\
+            0.0025  989.0  \\
+            0.003  463.0  \\
+            0.0035  165.0  \\
+            0.004  59.0  \\
+            0.0045  26.0  \\
+            0.005  2.0  \\
+            0.0055  2.0  \\
+            0.006  2.0  \\
+            0.0065  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (0.0017859465089999865,\pgfkeysvalueof{/pgfplots/ymin})--(0.0017859465089999865,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (0.0017859465089999865,\pgfkeysvalueof{/pgfplots/ymin})--(0.0017859465089999865,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (0.0017859465089999865,0)
+        }
+        ;
+    \nextgroupplot[ylabel={$m = 100$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0008  2.0  \\
+            -0.0006  185.0  \\
+            -0.0004  1503.0  \\
+            -0.0002  3555.0  \\
+            0.0  3147.0  \\
+            0.0002  1245.0  \\
+            0.0004  315.0  \\
+            0.0006  40.0  \\
+            0.0008  8.0  \\
+            0.001  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (-1.910691266806981e-6,\pgfkeysvalueof{/pgfplots/ymin})--(-1.910691266806981e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (-1.910691266806981e-6,\pgfkeysvalueof{/pgfplots/ymin})--(-1.910691266806981e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (-1.910691266806981e-6,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0008  2.0  \\
+            -0.0006  166.0  \\
+            -0.0004  1511.0  \\
+            -0.0002  3524.0  \\
+            0.0  3061.0  \\
+            0.0002  1369.0  \\
+            0.0004  328.0  \\
+            0.0006  37.0  \\
+            0.0008  2.0  \\
+            0.001  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (1.7228829771346467e-6,\pgfkeysvalueof{/pgfplots/ymin})--(1.7228829771346467e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (1.7228829771346467e-6,\pgfkeysvalueof{/pgfplots/ymin})--(1.7228829771346467e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (1.7228829771346467e-6,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0008  6.0  \\
+            -0.0006  183.0  \\
+            -0.0004  1430.0  \\
+            -0.0002  3492.0  \\
+            0.0  3141.0  \\
+            0.0002  1387.0  \\
+            0.0004  307.0  \\
+            0.0006  43.0  \\
+            0.0008  9.0  \\
+            0.001  2.0  \\
+            0.0012  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (5.619674148141497e-6,\pgfkeysvalueof{/pgfplots/ymin})--(5.619674148141497e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (5.619674148141497e-6,\pgfkeysvalueof{/pgfplots/ymin})--(5.619674148141497e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (5.619674148141497e-6,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0007  3.0  \\
+            -0.0006  23.0  \\
+            -0.0005  107.0  \\
+            -0.0004  456.0  \\
+            -0.0003  945.0  \\
+            -0.0002  1551.0  \\
+            -0.0001  1917.0  \\
+            0.0  1798.0  \\
+            0.0001  1415.0  \\
+            0.0002  887.0  \\
+            0.0003  488.0  \\
+            0.0004  235.0  \\
+            0.0005  117.0  \\
+            0.0006  40.0  \\
+            0.0007  15.0  \\
+            0.0008  2.0  \\
+            0.0009  1.0  \\
+            0.001  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (1.187957283584428e-5,\pgfkeysvalueof{/pgfplots/ymin})--(1.187957283584428e-5,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (1.187957283584428e-5,\pgfkeysvalueof{/pgfplots/ymin})--(1.187957283584428e-5,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (1.187957283584428e-5,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.0007  1.0  \\
+            -0.0006  26.0  \\
+            -0.0005  142.0  \\
+            -0.0004  421.0  \\
+            -0.0003  940.0  \\
+            -0.0002  1457.0  \\
+            -0.0001  1866.0  \\
+            0.0  1909.0  \\
+            0.0001  1430.0  \\
+            0.0002  905.0  \\
+            0.0003  480.0  \\
+            0.0004  275.0  \\
+            0.0005  89.0  \\
+            0.0006  40.0  \\
+            0.0007  10.0  \\
+            0.0008  6.0  \\
+            0.0009  2.0  \\
+            0.001  1.0  \\
+            0.0011  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (1.4969761806604653e-5,\pgfkeysvalueof{/pgfplots/ymin})--(1.4969761806604653e-5,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (1.4969761806604653e-5,\pgfkeysvalueof{/pgfplots/ymin})--(1.4969761806604653e-5,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (1.4969761806604653e-5,0)
+        }
+        ;
+    \nextgroupplot[ylabel={$m = 1000$}]
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.00025  2.0  \\
+            -0.0002  69.0  \\
+            -0.00015  466.0  \\
+            -0.0001  1728.0  \\
+            -5.0e-5  3008.0  \\
+            0.0  2593.0  \\
+            5.0e-5  1404.0  \\
+            0.0001  550.0  \\
+            0.00015  147.0  \\
+            0.0002  28.0  \\
+            0.00025  4.0  \\
+            0.0003  1.0  \\
+            0.00035  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (-2.2315644394492236e-7,\pgfkeysvalueof{/pgfplots/ymin})--(-2.2315644394492236e-7,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (-2.2315644394492236e-7,\pgfkeysvalueof{/pgfplots/ymin})--(-2.2315644394492236e-7,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (-2.2315644394492236e-7,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.00025  5.0  \\
+            -0.0002  60.0  \\
+            -0.00015  495.0  \\
+            -0.0001  1689.0  \\
+            -5.0e-5  2978.0  \\
+            0.0  2657.0  \\
+            5.0e-5  1400.0  \\
+            0.0001  555.0  \\
+            0.00015  133.0  \\
+            0.0002  24.0  \\
+            0.00025  4.0  \\
+            0.0003  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (-4.000002587159555e-7,\pgfkeysvalueof{/pgfplots/ymin})--(-4.000002587159555e-7,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (-4.000002587159555e-7,\pgfkeysvalueof{/pgfplots/ymin})--(-4.000002587159555e-7,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (-4.000002587159555e-7,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.00025  8.0  \\
+            -0.0002  57.0  \\
+            -0.00015  489.0  \\
+            -0.0001  1710.0  \\
+            -5.0e-5  2950.0  \\
+            0.0  2677.0  \\
+            5.0e-5  1420.0  \\
+            0.0001  499.0  \\
+            0.00015  156.0  \\
+            0.0002  31.0  \\
+            0.00025  2.0  \\
+            0.0003  0.0  \\
+            0.00035  1.0  \\
+            0.0004  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (-3.0454687311937044e-7,\pgfkeysvalueof{/pgfplots/ymin})--(-3.0454687311937044e-7,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (-3.0454687311937044e-7,\pgfkeysvalueof{/pgfplots/ymin})--(-3.0454687311937044e-7,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (-3.0454687311937044e-7,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.00025  3.0  \\
+            -0.0002  52.0  \\
+            -0.00015  475.0  \\
+            -0.0001  1742.0  \\
+            -5.0e-5  2916.0  \\
+            0.0  2665.0  \\
+            5.0e-5  1407.0  \\
+            0.0001  568.0  \\
+            0.00015  142.0  \\
+            0.0002  27.0  \\
+            0.00025  3.0  \\
+            0.0003  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (9.82809374714547e-8,\pgfkeysvalueof{/pgfplots/ymin})--(9.82809374714547e-8,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (9.82809374714547e-8,\pgfkeysvalueof{/pgfplots/ymin})--(9.82809374714547e-8,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (9.82809374714547e-8,0)
+        }
+        ;
+    \nextgroupplot
+    \addplot+[ybar interval, fill={Dark2-A!30!white}]
+        table[row sep={\\}]
+        {
+            \\
+            -0.00025  5.0  \\
+            -0.0002  53.0  \\
+            -0.00015  461.0  \\
+            -0.0001  1672.0  \\
+            -5.0e-5  2892.0  \\
+            0.0  2725.0  \\
+            5.0e-5  1463.0  \\
+            0.0001  544.0  \\
+            0.00015  144.0  \\
+            0.0002  35.0  \\
+            0.00025  5.0  \\
+            0.0003  1.0  \\
+            0.00035  0.0  \\
+        }
+        ;
+    \draw[solid, Dark2-B, thick] (1.5877970296498625e-6,\pgfkeysvalueof{/pgfplots/ymin})--(1.5877970296498625e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \draw[dashed, Dark2-C, thick] (1.5877970296498625e-6,\pgfkeysvalueof{/pgfplots/ymin})--(1.5877970296498625e-6,\pgfkeysvalueof{/pgfplots/ymax});
+    \addplot+[draw={none}]
+        coordinates {
+            (1.5877970296498625e-6,0)
+        }
+        ;
+\end{groupplot}
+\node[anchor=north] at ($(group c1r4.west |- group c1r4.outer south)!0.5!(group c5r4.east |- group c5r4.outer south)$){calibration error estimate};
+\node[anchor=south, rotate=90] at ($(group c1r1.north -| group c1r1.outer west)!0.5!(group c1r4.south -| group c1r4.outer west)$){\# runs};
+\end{tikzpicture}
