@@ -105,7 +105,7 @@
 \DeclareMathOperator{\MCE}{MCE}
 \DeclareMathOperator{\MMCE}{MMCE}
 \DeclareMathOperator*{\esssup}{ess\,sup}
-\newcommand{\nullhypothesis}{\mathrm{H}_0}
+\newcommand{\nullhypothesis}{H_0}
 \newcommand{\given}{\,|\,}
 
 \newcommand{\errors}[2]{%
@@ -330,7 +330,7 @@ $\Delta^m \coloneqq \{ z \in \mathbb{R}_{\geq 0}^m \colon \|z\|_1 = 1\}$. Then
 a \emph{probabilistic model} $g$ is a function that for every input $x$ outputs
 a prediction $g(x) \in \Delta^m$ that models the distribution
 \begin{equation*}
-    (\Prob[Y = 1|X = x], \ldots, \Prob[Y=m|X = x]) \in \Delta^m
+  \big(\Prob[Y = 1 \given X = x], \ldots, \Prob[Y=m \given X = x]\big) \in \Delta^m
 \end{equation*}
 of class $Y$ given input $X = x$.
 
@@ -382,7 +382,7 @@ strong sense if
 \end{equation}
 holds almost always, where
 \begin{equation*}
-  r(\xi) \coloneqq (\Prob[Y = 1 \given g(X) = \xi], \ldots, \Prob[Y = m \given g(X) = \xi])
+  r(\xi) \coloneqq \big(\Prob[Y = 1 \given g(X) = \xi], \ldots, \Prob[Y = m \given g(X) = \xi]\big)
 \end{equation*}
 is the distribution of class $Y$ given prediction $g(X) = \xi$.
 
@@ -501,7 +501,7 @@ kernel-based formulation.
   Let $k$ be a matrix-valued kernel as in \cref{def:kernel}. If
   $\Expect[\|k(g(X),g(X))\|] < \infty$, then
   \begin{equation}\label{eq:ce2}
-    \kernelmeasure[k,g] = {\bigg(\Expect[{(e_Y - g(X))}^{\intercal} k(g(X), g(X')) {(e_{Y'} - g(X'))}]\bigg)}^{1/2},
+    \kernelmeasure[k,g] = {\Big(\Expect\big[{(e_Y - g(X))}^{\intercal} k(g(X), g(X')) {(e_{Y'} - g(X'))}\big]\Big)}^{1/2},
   \end{equation}
   where $(X', Y')$ is an independent copy of $(X,Y)$ and $e_i$ denotes the $i$th unit vector.
 \end{lemma}
@@ -616,12 +616,12 @@ bounds is that usually they provide only a loose bound of the p-value.
   $B_{p;q} \coloneqq 2^{1 + 1 / p - 1 / q} K_{p;q}$, then for the biased estimator
   we can bound
   \begin{equation*}
-    \Prob\left[\biasedestimator \geq t \,\middle|\, \nullhypothesis \right] \leq \exp{\left(-\frac{1}{2}{\left(\max \left\{0, \sqrt{\frac{nt}{B_{p;q}}} - 1 \right\}\right)}^2\right)},
+    \Prob\Big[\biasedestimator \geq t \,\Big|\, \nullhypothesis \Big] \leq \exp{\bigg(-\frac{1}{2}{\Big(\max\Big\{0, \sqrt{nt / B_{p;q}} - 1 \Big\}\Big)}^2\bigg)},
   \end{equation*}
   and for either of the unbiased estimators
   $T \in \{\unbiasedestimator,\linearestimator\}$, we can bound
   \begin{equation*}
-    \Prob[T \geq t \given \nullhypothesis] \leq \exp{(- \lfloor n/2 \rfloor t^2 / (2 B_{p;q}^2))}.
+    \Prob\Big[T \geq t \,\Big|\, \nullhypothesis\Big] \leq \exp{\bigg(- \frac{\lfloor n/2 \rfloor t^2}{2 B_{p;q}^2}\bigg)}.
   \end{equation*}
 \end{lemma}
 
@@ -630,12 +630,12 @@ under the null hypothesis, as the number of validation data points goes to
 infinity. The central limit theorem implies that the linear estimator is
 asymptotically normally distributed.
 
-\begin{lemma}[{{Asymptotic bound based on $\linearestimator$ (see~\cref{cor:linear_asymptotic})}}]
+\begin{lemma}[{{Asymptotic distribution of $\linearestimator$ (see~\cref{cor:linear_asymptotic})}}]
   Let $k$ be a matrix-valued kernel as in \cref{def:kernel}, and assume that
   $\Expect[\|k(g(X),g(X))\|] < \infty$. If
   $\Var[h_{i,j}] < \infty$, then
   \begin{equation*}
-    \Prob\left[\frac{\linearestimator}{\hat{\sigma} / \sqrt{\lfloor n / 2\rfloor}} \geq t \,\middle| \, \nullhypothesis \right] \to 1 - \Phi(t) \quad \text{as} \quad n \to \infty,
+    \Prob\Big[\sqrt{\lfloor n / 2\rfloor} \linearestimator \geq t \,\Big| \, \nullhypothesis \Big] \to 1 - \Phi\bigg(\frac{t}{\hat{\sigma}}\bigg) \quad \text{as} \quad n \to \infty,
   \end{equation*}
   where $\hat{\sigma}$ is the sample standard deviation of $h_{2i-1,2i}$
   ($i = 1,\ldots,\lfloor n / 2 \rfloor$) and $\Phi$ is the cumulative
