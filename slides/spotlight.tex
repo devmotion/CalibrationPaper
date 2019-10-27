@@ -1,0 +1,453 @@
+% arara: lualatex: { shell: true }
+% arara: biber
+% arara: lualatex: { shell: true }
+% arara: lualatex: { shell: true }
+\documentclass[aspectratio=169]{beamer}
+% \documentclass[handout]{beamer} % for handouts
+
+% Plots
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+\usepgfplotslibrary{groupplots,fillbetween}
+\usetikzlibrary{positioning,arrows,arrows.meta,calc,decorations.markings,intersections,patterns}
+
+% Use colorbrewer
+\usepgfplotslibrary{colorbrewer}
+\pgfplotsset{
+  % initialize Dark2-8:
+  cycle list/Dark2-8,
+  % combine it with ’mark list*’:
+  cycle multiindex* list={
+    mark list*\nextlist
+    Dark2-8\nextlist
+  },
+}
+
+\tikzset{
+  invisible/.style={opacity=0},
+  visible on/.style={alt={#1{}{invisible}}},
+  alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+  },
+}
+
+% Beamer theme
+\usetheme[progressbar=frametitle,numbering=fraction,block=fill]{metropolis}
+
+% Math support
+\usepackage{mathtools,amssymb}
+
+% Fonts
+% open source alternative to Gill Sans in UU's official layout
+\usepackage{gillius2}
+\usepackage{microtype}
+
+% Languages
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\usepackage{csquotes}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{svg}
+\svgpath{{./figures/}}
+
+% Tables
+\usepackage{booktabs}
+
+% Colors
+\def\UseCMYK{true}
+\usepackage{UUcolorPantone}
+\makeatletter
+\setlength{\metropolis@progressonsectionpage@linewidth}{1pt}
+\makeatother
+\setbeamercolor{progress bar}{fg=uured,bg=uured!50}
+
+% Itemize
+\setbeamertemplate{itemize item}{\color{uured}$\blacktriangleright$}
+
+% Boxes
+\usepackage[export]{adjustbox}
+\usepackage{tcolorbox}
+\tcbuselibrary{most}
+\tcbset{coltitle=black,fonttitle=\bfseries\large\scshape}
+
+\newenvironment{uuredbox}[1][]%
+{\begin{tcolorbox}[colback=uured!15,colframe=uured,#1]}%
+{\end{tcolorbox}}
+\newenvironment{uugreenbox}[1][]%
+{\begin{tcolorbox}[colback=gronskasvag,colframe=gronskastark,#1]}%
+{\end{tcolorbox}}
+\newenvironment{uuyellowbox}[1][]%
+{\begin{tcolorbox}[colback=blondsvag,colframe=blondstark,#1]}%
+{\end{tcolorbox}}
+\newenvironment{uubluebox}[1][]%
+{\begin{tcolorbox}[colback=gryningmellan,colframe=gryningstark,#1]}%
+{\end{tcolorbox}}
+\newenvironment{uugraybox}[1][]%
+{\begin{tcolorbox}[colback=uulightgrey,colframe=black,#1]}%
+{\end{tcolorbox}}
+
+% References
+\usepackage[style=authoryear-icomp,doi=false,url=false,isbn=false]{biblatex}
+\addbibresource{references.bib}
+
+\newenvironment{refitemize}%
+{%
+  \noindent\rule{\textwidth}{0.4pt}\par%
+  \vspace*{-\parskip}%
+  \setbeamertemplate{itemize item}{\leavevmode\tiny\includegraphics[raise=-2pt,width=5pt]{beamericonarticle}}%
+  \setbeamerfont{itemize/enumerate body}{size=\tiny}%
+  \setlength\topsep{0pt}%NEW
+  \setlength\partopsep{0pt}%NEW
+  \setlength\itemsep{0pt}%NEW
+  \settowidth{\leftmargini}{\usebeamertemplate{itemize item}}%
+  \addtolength{\leftmargini}{\labelsep}%
+  \begin{itemize}%
+}{%
+  \end{itemize}%
+  \par\ignorespacesafterend%
+}
+\newcommand\refitem[1]{\item \fullcite{#1}}
+
+\newcommand\hl[1]{\begingroup\bfseries\boldmath\color{uured}#1\endgroup}
+
+\title{\texorpdfstring{Calibration tests in multi-class classification:\\A unifying framework}{Calibration tests in multi-class classification: A unifying framework}}
+\date{}
+\author{\texorpdfstring{David Widmann$^\star$ Fredrik Lindsten$^\ddagger$ Dave Zachariah$^\star$}{David Widmann, Fredrik Lindsten, Dave Zachariah}}
+\titlegraphic{\hfill%
+	\begin{tikzpicture}
+		\node[right,inner sep=0pt,outer sep=0pt] (UU) {\includegraphics[height=1.25cm]{figures/logos/UU.pdf}};
+		\node[right,inner sep=0pt,outer sep=0pt, right=2mm of UU]  (LiU) {\includegraphics[height=0.75cm]{figures/logos/LiU.pdf}};
+	\end{tikzpicture}%
+}
+\institute{$^\star$Department of Information Technology, Uppsala University\\$^\ddagger$Division of Statistics and Machine Learning, Linköping University}
+
+\begin{document}
+
+\pgfplotsset{compat=1.16}
+
+\maketitle
+
+\begin{frame}{Motivation}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[draw, inner sep=0pt] (image) at (0, 0)
+      {\includegraphics[height=0.15\textwidth]{figures/malignant/ISIC_0000002.jpg}};
+      \node[above=2mm of image, anchor=base] {Skin image};
+
+      \onslide<2->{%
+        \node[draw, fill=gronskasvag, right=1cm of image, inner sep=2mm] (model)
+        {\includesvg[height=\dimexpr0.15\textwidth-4mm\relax]{gear}};
+        \node[above=2mm of model, anchor=base] {Model};
+        \draw [->] (image) -- (model);
+      }%
+
+      \onslide<3->{%
+        \node[draw, fill=blondsvag, right=1cm of model, minimum height=0.15\textwidth, align=center] (prediction)
+        {\begin{tabular}{@{}cc@{}}
+           \texttt{malignant} & \texttt{benign} \\ \midrule
+           80\% & 20\% \\
+         \end{tabular}};
+       \node[above=2mm of prediction, anchor=base] {Prediction};
+       \draw [->] (model) -- (prediction);
+     }%
+   \end{tikzpicture}
+ \end{center}
+
+ \onslide<4->{%
+   \begin{uubluebox}
+     \begin{center}
+       How can we ensure that the predicted confidence scores are \enquote{meaningful}?
+     \end{center}
+   \end{uubluebox}
+ }%
+\end{frame}
+
+\begin{frame}{Introduction}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[draw, fill=gronskasvag, inner sep=2mm] (model) at (0, 0)
+      {\includesvg[height=\dimexpr0.15\textwidth-4mm\relax]{gear}};
+
+      \visible<2-4>{%
+        \node[draw, inner sep=0pt, left=1cm of model] (image)
+        {\includegraphics[height=0.15\textwidth]{figures/malignant/ISIC_0000002.jpg}};
+      }%
+      \visible<5-7>{%
+        \node[draw, inner sep=0pt, left=1cm of model] (image)
+        {\includegraphics[height=0.15\textwidth]{figures/benign/ISIC_0000000.jpg}};
+      }%
+      \visible<8-10>{%
+        \node[draw, inner sep=0pt, left=1cm of model] (image)
+        {\includegraphics[height=0.15\textwidth]{figures/malignant/ISIC_0000013.jpg}};
+      }%
+
+      \visible<11>{%
+        \node[left=1cm of model, minimum height=0.15\textwidth] (image)
+        {\includegraphics[width=0.05\textwidth]{figures/malignant/ISIC_0000022.jpg} \hspace{2mm} \includegraphics[width=0.05\textwidth]{figures/malignant/ISIC_0000026.jpg} \hspace{2mm} $\cdots$};
+      }%
+
+      \visible<2->{%
+        \draw [->] (image) -- (model);
+      }%
+
+      \visible<3-4,6-7,9-11>{%
+        \node[draw, fill=blondsvag, right=1cm of model, align=left, minimum height=0.15\textwidth] (prediction)
+        {\begin{tabular}{@{}cc@{}}
+           \texttt{malignant} & \texttt{benign} \\ \midrule
+           80\% & 20\% \\
+         \end{tabular}};
+       \draw [->] (model) -- (prediction);
+     }%
+   \end{tikzpicture}
+ \end{center}
+
+ \onslide<4->{%
+   \begin{uubluebox}[title={Empirical frequency}]
+     \begin{center}
+       \begin{tabular}{@{}ccccc@{}} \toprule
+         \multicolumn{4}{c}{\texttt{malignant}} & \texttt{benign} \\ \midrule
+         \includegraphics[width=5mm]{figures/malignant/ISIC_0000002.jpg} & \visible<10->{\includegraphics[width=5mm]{figures/malignant/ISIC_0000013.jpg}} & \visible<11->{\includegraphics[width=5mm]{figures/malignant/ISIC_0000022.jpg}} & \visible<11->{\includegraphics[width=5mm]{figures/malignant/ISIC_0000026.jpg}} & \visible<7->{\includegraphics[width=5mm]{figures/benign/ISIC_0000000.jpg}}
+                                                                                                                                                                                                                                                                                                                              \visible<11->{\\ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$} \\ \bottomrule
+       \end{tabular}
+     \end{center}
+   \end{uubluebox}
+ }%
+\end{frame}
+
+\begin{frame}{Calibrated model}
+  \begin{tcbraster}[raster columns=2,raster equal height=rows]
+    \onslide<2->{%
+      \begin{uugreenbox}[raster multicolumn=2]
+        \begin{center}
+          A \hl{calibrated model} reports\\
+          \hl{predictions consistent with empirically observed frequencies} of outcomes.
+        \end{center}
+      \end{uugreenbox}
+    }%
+		\begin{uuyellowbox}[enhanced, title={Prediction}, valign=center, remember as=A]
+      \begin{center}
+        \begin{tabular}{@{}cc@{}} \toprule
+          \texttt{malignant} & \texttt{benign} \\ \midrule
+          80\% & 20\% \\ \bottomrule
+        \end{tabular}
+      \end{center}
+    \end{uuyellowbox}%
+    \begin{uubluebox}[enhanced, title={Empirical frequency}, valign=center, remember as=B]
+      \begin{center}
+        \begin{tabular}{@{}ccccc@{}} \toprule
+          \multicolumn{4}{c}{\texttt{malignant}} & \texttt{benign} \\ \midrule
+          \includegraphics[width=5mm]{figures/malignant/ISIC_0000002.jpg} & \includegraphics[width=5mm]{figures/malignant/ISIC_0000013.jpg} & \includegraphics[width=5mm]{figures/malignant/ISIC_0000022.jpg} & \includegraphics[width=5mm]{figures/malignant/ISIC_0000026.jpg} & \includegraphics[width=5mm]{figures/benign/ISIC_0000000.jpg} \\
+          $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\ \bottomrule
+        \end{tabular}
+      \end{center}
+    \end{uubluebox}
+  \end{tcbraster}
+
+  \onslide<2->{%
+    \begin{tikzpicture}[remember picture, overlay]
+      \path (A) -- node [font=\boldmath\Huge, color=uured, align=center, midway] {$\stackrel{?}{=}$} (B);
+    \end{tikzpicture}
+  }%
+\end{frame}
+
+\begin{frame}{Multi-class classification}
+  \begin{tcbraster}[raster columns=1]
+    \begin{tcolorbox}[blankest]
+      \begin{center}
+        \begin{tikzpicture}
+          \node[draw, inner sep=2mm] (image) at (0, 0)
+          {\includesvg[height=\dimexpr0.11\textwidth-4mm\relax]{car}};
+
+          \onslide<2->{%
+            \node[draw, fill=gronskasvag, right=1cm of image, inner sep=2mm] (model)
+            {\includesvg[height=\dimexpr0.11\textwidth-4mm\relax]{gear}};
+            \draw [->] (image) -- (model);
+          }%
+
+          \onslide<3->{%
+            \node[draw, fill=blondsvag, right=1cm of model, minimum height=0.11\textwidth, align=center] (prediction)
+            {\begin{tabular}{@{}ccc@{}}
+               \texttt{object} & \texttt{human} & \texttt{animal} \\ \midrule
+               80\% & 0\% & 20\% \\
+             \end{tabular}};
+           \draw [->] (model) -- (prediction);
+         }%
+       \end{tikzpicture}
+     \end{center}
+   \end{tcolorbox}
+   \onslide<4->{%
+     \begin{uuyellowbox}[enhanced, title={Reduction to binary classification}, fontupper=\footnotesize, fontlower=\footnotesize, sidebyside, lower separated=false, remember as=A]
+       \begin{center}
+         \begin{tabular}{@{}ccc@{}} \toprule
+           \texttt{object} & \texttt{human} & \texttt{animal} \\ \midrule
+           \hl{80\%} & 0\% & 20\% \\
+           10\% & \hl{80\%} & 10\% \\
+           $\vdots$ & $\vdots$ & $\vdots$ \\ \bottomrule
+         \end{tabular}
+       \end{center}
+       \onslide<5->{%
+         \tcblower
+         \begin{center}
+           \begin{tabular}{@{}ccc@{}} \toprule
+             \texttt{object} & \texttt{human} & \texttt{animal} \\ \midrule
+             \hl{80\%} & 0\% & 20\% \\
+             \hl{80\%} & 10\% & 10\% \\
+             $\vdots$ & $\vdots$ & $\vdots$ \\ \bottomrule
+           \end{tabular}
+         \end{center}
+       }%
+     \end{uuyellowbox}
+   }%
+   \begin{tcolorbox}[blankest]
+     \begin{refitemize}
+       \refitem{vaicenavicius19_evaluat}
+       \onslide<4->{\refitem{guo17_calib_moder_neural_networ}}
+     \end{refitemize}
+   \end{tcolorbox}
+ \end{tcbraster}
+
+ \onslide<6->{%
+   \begin{tikzpicture}[remember picture, overlay]
+     \node at (A) {%
+       \begin{uuredbox}[width=0.5\pagewidth, nobeforeafter]
+         \begin{center}
+           Often \hl{partial calibration} is \hl{not enough}!
+         \end{center}
+       \end{uuredbox}%
+     };
+   \end{tikzpicture}
+ }%
+\end{frame}
+
+\begin{frame}{Our contribution: Calibration errors in multi-class classification}
+  \begin{tcbraster}[raster columns=1, raster rows=3]
+    \begin{uuyellowbox}[title={Unified framework}, left=0pt]
+      \begin{itemize}
+      \item Encompasses existing measures such as the
+        expected calibration error ($\mathrm{ECE}$)
+      \item<2-> Enables derivation of a \hl{kernel calibration error ($\mathrm{KCE}$)}
+      \end{itemize}
+    \end{uuyellowbox}
+
+    \onslide<3->{%
+      \begin{tcolorbox}[blank]
+        The standard $\mathrm{ECE}$ estimator is usually biased and inconsistent:
+        \begin{center}
+          \input{figures/errors_ece.tex}
+        \end{center}
+      \end{tcolorbox}
+    }%
+    \onslide<4->{%
+      \begin{uugreenbox}
+        \begin{center}
+          The $\mathrm{KCE}$ yields \hl{unbiased} and \hl{consistent} estimators
+        \end{center}
+      \end{uugreenbox}
+    }%
+  \end{tcbraster}
+\end{frame}
+
+\begin{frame}{Our contribution: Calibration tests in multi-class classification}
+  \only<1>{%
+    \begin{uuredbox}
+      \begin{center}
+        Calibration errors have no meaningful unit or scale
+      \end{center}
+    \end{uuredbox}
+  }%
+
+  \only<2->{%
+    \begin{tcbraster}[raster columns=1]
+      \onslide<3->{%
+        \begin{uubluebox}
+          \begin{center}
+            Test the null hypothesis $H_0 \coloneqq \text{\enquote{model is calibrated}}$
+          \end{center}
+        \end{uubluebox}
+      }%
+
+      \begin{tcolorbox}[blankest]
+        \begin{center}
+          \begin{tikzpicture}[
+            declare function={normal(\m,\s)=1/(2*\s*sqrt(pi))*exp(-(x-\m)^2/(2*\s^2));},
+            declare function={binormal(\ma,\sa,\mb,\sb,\p)=(\p*normal(\ma,\sa)+(1-\p)*normal(\mb,\sb));}
+            ]
+
+            \begin{axis}[
+              domain = -0.1:0.2,
+              no marks,
+              xlabel = calibration error estimate,
+              ylabel = density,
+              grid=major,
+              ymin = 0,
+              tick label style={font=\tiny},
+              label style={font=\small},
+              width = 0.73\textwidth,
+              height = 0.25\textwidth,
+              legend pos=outer north east,
+              legend cell align=left,
+              legend style=
+              {
+                fill=none,
+                draw=none,
+                inner sep={0pt},
+                font=\small,
+              }
+              ]
+
+              \draw [Dark2-A, thick] (0.07,\pgfkeysvalueof{/pgfplots/ymin}) -- (0.07,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {observed};
+
+              \draw[Dark2-B, thick] (0,\pgfkeysvalueof{/pgfplots/ymin}) -- (0,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {calibrated};
+
+              % mixture model of normal distributions
+              \addplot+ [color=Dark2-B, dashed, thick, visible on=<4->, samples=31, smooth, name path=A] {binormal(-0.05,0.01,0.05,0.03,0.5)};
+              \addlegendentry[visible on=<4->]{distribution under $H_0$};
+
+              % indicate p-value
+              \path [name path=B] (\pgfkeysvalueof{/pgfplots/xmin},0) -- (\pgfkeysvalueof{/pgfplots/xmax},0);
+              \addplot+ [draw=Dark2-C, pattern color=Dark2-C, pattern={north east lines}, visible on=<5->] fill between [of=A and B, soft clip={domain=0.07:0.2}];
+              \addlegendentry[visible on=<5->]{p-value};
+
+              % add comment
+              \node<6->[anchor=west, align=left, text=Dark2-C, font=\small] (annotation) at (0.1, 10) {reject $H_0$ if the \\p-value is small};
+              \draw<6->[->, >=stealth, thick, Dark2-C] (annotation) -- (0.08, 1);
+            \end{axis}
+          \end{tikzpicture}
+        \end{center}
+      \end{tcolorbox}
+      \onslide<7->{%
+        \begin{uugreenbox}[left=0pt]
+          \begin{itemize}
+          \item Existing approach for estimating the p-value for the $\mathrm{ECE}$ seems unreliable
+          \item<8-> \hl{Well-founded bounds and approximations} of the p-value for the $\mathrm{KCE}$
+          \end{itemize}
+        \end{uugreenbox}
+      }%
+      \onslide<3->{%
+        \begin{tcolorbox}[blankest]
+          \begin{refitemize}
+            \refitem{broecker07_increas_reliab_reliab_diagr}
+            \refitem{vaicenavicius19_evaluat}
+          \end{refitemize}
+        \end{tcolorbox}
+      }%
+    \end{tcbraster}
+  }%
+\end{frame}
+
+\begin{frame}[standout]
+  \vspace*{3\baselineskip}
+	Thank you for listening!
+
+	%Come see our poster
+  \vspace*{2\baselineskip}
+	\begin{flushleft}
+    \normalsize
+		Paper, code, and slides available at:\\
+    \url{https://github.com/devmotion/CalibrationPaper}
+	\end{flushleft}
+\end{frame}
+
+\end{document}

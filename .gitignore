@@ -6,7 +6,12 @@
 *.blg
 *.brf
 *.log
+*.nav
 *.out
 *.run.xml
+*.snm
+*.toc
+
+*/svg-inkscape/
 
 */cache/
