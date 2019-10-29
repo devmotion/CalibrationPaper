@@ -1,6 +1,6 @@
 \begin{tikzpicture}
-\begin{groupplot}[group style={group size={3 by 6}, xlabels at={edge bottom}, ylabels at={edge left}, horizontal sep={0.1\linewidth}, vertical sep={0.02\linewidth}, xticklabels at={edge bottom}}, no markers, tick label style={font={\footnotesize}}, grid={major}, title style={align={center}}, width={0.22\linewidth}, height={0.1\linewidth}, every x tick scale label/.style={at={{(1,0)}}, anchor={west}}, ylabel style={font={\small}}]
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, title={\textbf{M1}}, ylabel={$\ECE$}]
+\begin{groupplot}[group style={group size={3 by 6}, xlabels at={edge bottom}, ylabels at={edge left}, horizontal sep={0.1\linewidth}, vertical sep={0.02\linewidth}, xticklabels at={edge bottom}}, no markers, tick label style={font={\footnotesize}}, grid={major}, title style={align={center}}, width={0.22\linewidth}, height={0.15\linewidth}, every x tick scale label/.style={at={{(1,0)}}, anchor={west}}, ylabel style={font={\small}}, ymin=-0.1, ymax=1.1, xmin={0}, xmax={1}]
+    \nextgroupplot[title={\textbf{M1}}, ylabel={$\ECE$}]
     \addplot+[]
         table[row sep={\\}]
         {
@@ -114,7 +114,7 @@
             (1,1)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, title={\textbf{M2}}]
+    \nextgroupplot[title={\textbf{M2}}]
     \addplot+[]
         coordinates {
             (0.0,0.0)
@@ -220,7 +220,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, title={\textbf{M3}}]
+    \nextgroupplot[title={\textbf{M3}}]
     \addplot+[]
         coordinates {
             (0.0,0.0)
@@ -326,7 +326,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, ylabel={$\biasedskce$}]
+    \nextgroupplot[ylabel={$\biasedskce$}]
     \addplot+[]
         table[row sep={\\}]
         {
@@ -440,7 +440,7 @@
             (1,1)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -546,7 +546,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -652,7 +652,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, ylabel={$\unbiasedskce$}]
+    \nextgroupplot[ylabel={$\unbiasedskce$}]
     \addplot+[]
         table[row sep={\\}]
         {
@@ -766,7 +766,7 @@
             (1,1)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -872,7 +872,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -978,7 +978,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, ylabel={$\linearskce$}]
+    \nextgroupplot[ylabel={$\linearskce$}]
     \addplot+[]
         table[row sep={\\}]
         {
@@ -1092,7 +1092,7 @@
             (1,1)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -1198,7 +1198,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -1304,7 +1304,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, ylabel={$\asymplinearskce$}]
+    \nextgroupplot[ylabel={$\asymplinearskce$}]
     \addplot+[]
         table[row sep={\\}]
         {
@@ -1418,7 +1418,7 @@
             (1,1)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -1524,7 +1524,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,1.0)
@@ -1630,7 +1630,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}, ylabel={$\asympunbiasedskce$}]
+    \nextgroupplot[ylabel={$\asympunbiasedskce$}]
     \addplot+[]
         table[row sep={\\}]
         {
@@ -1744,7 +1744,7 @@
             (1,1)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,0.0)
@@ -1850,7 +1850,7 @@
             (1.0,0.0)
         }
         ;
-    \nextgroupplot[xmin={0}, xmax={1}, ymin={0}]
+    \nextgroupplot[]
     \addplot+[]
         coordinates {
             (0.0,0.0)
