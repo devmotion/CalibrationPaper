@@ -55,7 +55,9 @@
 \newcommand{\hl}[1]{\begingroup\bfseries\boldmath\color{uured}#1\endgroup}
 
 % graphics
-\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{svg}
+\svgpath{{./figures/}}
 
 % captions
 \usepackage{caption,subcaption}
@@ -116,6 +118,7 @@
 % plots
 \usepackage{pgfplots,pgfplotstable}
 \pgfplotsset{compat=1.16}
+\usetikzlibrary{positioning,arrows,arrows.meta,calc,decorations.markings,intersections,patterns}
 
 % general settings for plots
 \pgfplotsset{grid style=dashed}
@@ -153,7 +156,7 @@
 
 % metadata
 \title{Calibration tests in multi-class classification:\\ A unifying framework}
-\author{David Widmann$^\star$ Fredrik Lindsten$^\dagger$ Dave Zachariah$^\star$}
+\author{David Widmann$^\star$ Fredrik Lindsten$^\ddagger$ Dave Zachariah$^\star$}
 \date{\today}
 \makeatletter
 \pgfkeys{%
@@ -214,35 +217,78 @@
     \end{itemize}
   }
 
-  \posterbox[adjusted title=General setup]{name=setup,column=1,below=summary}{
-    \begin{itemize}
-    \item Let $X$ be random inputs (features) of $m$ classes $1,\ldots,m$, denoted by $Y$.
-    \item Consider a \hl{probabilistic model} $g$ that predicts a probability distribution of classes $g(X) \in \Delta^{m}$ for input $X$, where $\Delta^m \coloneqq \{z \in \mathbb{R}^m_{\geq 0} : \|z\|_1 = 1\}$ denotes the $(m-1)$-dimensional probability simplex.
-    \item Ideally $g$ predicts $g_y(X) = \Prob[Y = y \,|\,X]$ for all classes $y$.
-    \end{itemize}
-  }
-
-  \posterbox[adjusted title={Calibration}]{name=calibration,column=1,below=setup}{
-    Although in practice the model will never be ideal but at most close to it, we can strive to satisfy other desirable statistical properties such as \hl{calibration}.
-    \begin{tcolorbox}[colback=blondsvag, halign=center]
-      Informally, in the long run every prediction should match the relative frequencies of the observed classes.
+  \posterbox[adjusted title={Motivation - what is a calibrated model?}, colback=blondsvag]{name=calibration,column=2,span=2,below=title}{
+    \begin{tcolorbox}[colback=blondstark]
+      \begin{center}
+        A \hl{calibrated model} yields predictions consistent with empirically observed frequencies.
+      \end{center}
     \end{tcolorbox}
-    Mathematically, a model \(g\) is calibrated if
-    \begin{equation*}
-      g_y(X) = \Prob[Y = y \,|\, g(X)] \quad \text{a.s.\ for all classes } y,
-    \end{equation*}
-    or equivalently if
-    \begin{equation}\label{eq:calibration}
-      \begin{split}
-        g(X) &= r(g(X)) \\
-        &\coloneqq (\mathbb{P}[Y = 1 \,|\, g(X)], \ldots, \mathbb{P}[Y = m \,|\, g(X)]) \quad \text{a.s.}.
-      \end{split}
-    \end{equation}
-  }
 
-  \posterbox[adjusted title={Calibration error}]{name=error,column=2,span=2,below=title}{
-    We propose the following general measure of miscalibration which arises naturally from the definition of calibration in \cref{eq:calibration}.
+    \tcbsubtitle{ex) collision detection system}
+    \begin{minipage}[t]{0.55\linewidth}
+      \begin{center}
+        \begin{tikzpicture}
+          \node[draw, inner sep=2mm] (image) at (0, 0)
+          {\includesvg[height=9mm]{car}};
+          \node[above=2mm of image, anchor=base] {Input $X$};
 
+          \node[draw, fill=gronskasvag, right=0.75cm of image, inner sep=2mm] (model)
+          {\includesvg[height=9mm]{gear}};
+          \node[above=2mm of model, anchor=base] {Model $g$};
+          \draw [->] (image) -- (model);
+
+          \node[draw, right=0.75cm of model, minimum height=1.3cm, font=\scriptsize, align=center] (prediction)
+          {\begin{tabular}{@{}ccc@{}}
+             \includesvg[width=7mm]{barrier} & \includesvg[width=7mm]{pedestrian} & \includesvg[width=7mm]{bear} \\
+             80\% & 0\% & 20\% \\
+           \end{tabular}};
+         \node[above=2mm of prediction, anchor=base] {Prediction $g(X)$};
+         \draw [->] (model) -- (prediction);
+       \end{tikzpicture}
+     \end{center}
+   \end{minipage}%
+   \begin{minipage}[t]{0.45\linewidth}
+
+   \end{minipage}
+
+   If model $g$ is calibrated we know that for all inputs with this
+   prediction there is an object ahead 80\% of the time, a human 0\%
+   of the time, and an animal 20\% of the time.
+
+   \begin{center}
+     \begin{tikzpicture}
+       \node[minimum height=1.3cm] (image) at (0, 0)
+       {\begin{tabular}{@{}ccc@{}}
+          \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} \\
+          \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & $\cdots$ \\
+        \end{tabular}};
+
+       \node[draw, fill=gronskasvag, right=0.75cm of image, inner sep=2mm] (model)
+       {\includesvg[height=9mm]{gear}};
+       \draw [->] (image) -- (model);
+
+       \node[draw, right=0.75cm of model, minimum height=1.3cm, font=\scriptsize, align=center] (prediction)
+       {\begin{tabular}{@{}ccc@{}}
+          \includesvg[width=7mm]{barrier} & \includesvg[width=7mm]{pedestrian} & \includesvg[width=7mm]{bear} \\
+          80\% & 0\% & 20\% \\
+        \end{tabular}};
+      \draw [->] (model) -- (prediction);
+
+      \node[right=1cm of prediction] (empirical)
+      {\begin{tabular}{@{}cccccc@{}}
+         \multicolumn{4}{c}{\includesvg[width=5mm]{barrier}} & \includesvg[width=5mm]{pedestrian} & \includesvg[width=5mm]{bear} \\ \midrule
+         \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & & \includesvg[height=3mm]{car} \\
+         $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & & $\vdots$ \\ \bottomrule
+       \end{tabular}};
+     \node[below=1mm of empirical] (A) {Empirical frequency $r(g(X))$};
+     \node at (prediction |- A) {Prediction $g(X)$};
+
+     \path (prediction) -- node [font=\boldmath\Huge, color=uured, align=center, midway] {$=$} (empirical);
+   \end{tikzpicture}
+ \end{center}
+}
+
+  \posterbox[adjusted title={Calibration error}]{name=error,column=2,span=2,below=calibration}{
     \begin{tcolorbox}[colback=sandstark]
       The \hl{calibration error}~($\measure$) of model $g$ w.r.t.\ a class $\mathcal{F}$ of functions $f \colon \Delta^m \to \mathbb{R}^m$ is
       \begin{equation*}
