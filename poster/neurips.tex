@@ -72,7 +72,7 @@
 \usepackage{hyperref}
 
 % boxes
-\usepackage[poster,xparse]{tcolorbox}
+\usepackage[poster,xparse,raster]{tcolorbox}
 
 % poster settings
 \tcbposterset{
@@ -83,8 +83,8 @@
   },
   poster =
   {
-    columns=5,
-    rows=5,
+    columns=10,
+    rows=1,
     showframe=true, % useful for debugging
   },
   boxes =
@@ -124,7 +124,7 @@
 \pgfplotsset{grid style=dashed}
 \pgfplotsset{enlargelimits=auto}
 
-\usepgfplotslibrary{groupplots,colorbrewer}
+\usepgfplotslibrary{groupplots,fillbetween,colorbrewer}
 \usetikzlibrary{plotmarks,calc}
 
 % plotting options
@@ -138,8 +138,9 @@
 \usepackage{cleveref}
 
 % some abbreviations
-\newcommand{\Prob}{\mathbb{P}}
+\newcommand*{\Prob}{\mathbb{P}}
 \newcommand*{\E}{\mathbb{E}}
+\newcommand*{\transpose}[1]{{#1}^{\mathsf{T}}}
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator{\ECE}{ECE}
 \DeclareMathOperator{\biasedskce}{SKCE_b}
@@ -185,7 +186,7 @@
   underlay =
   {%
     \node[left,inner sep=0pt,outer sep=0pt,align=center] at (frame.east) {\includegraphics[width=2cm]{figures/logos/UU.pdf}\\[1ex]\includegraphics[width=3cm]{figures/logos/LiU.pdf}};%
-  }]{name=title,column=1,span=3,below=top}{%
+  }]{name=title,column=1,span=6,below=top}{%
     \Huge\textbf{\pgfkeysvalueof{/my poster/title}}\\[1ex]
     \large\pgfkeysvalueof{/my poster/author}\\[1ex]
     \normalsize\pgfkeysvalueof{/my poster/institute}%
@@ -193,11 +194,124 @@
 
   % footline
   \posterbox[blankest,top=2pt,bottom=2pt,valign=center,fontupper=\ttfamily\small,interior engine=path,interior style={color=uumidgrey}%
-  ]{name=footline,column=1,span=5,above=bottom}{%
+  ]{name=footline,column=1,span=10,above=bottom}{%
     \pgfkeysvalueof{/my poster/date}\hfill\pgfkeysvalueof{/my poster/contact}%
   }%
 
-  \posterbox[adjusted title=The paper in 30 seconds, colback=blondmellan]{name=summary,column=1,below=title}{
+  \posterbox[adjusted title={Motivation - what is a calibrated model?}, colback=blondsvag]{name=calibration,column=3,span=4,below=title}{
+    \begin{tcolorbox}[colback=blondstark]
+      \begin{center}
+        A \hl{calibrated model} yields predictions consistent with empirically observed frequencies.
+      \end{center}
+    \end{tcolorbox}
+
+    \tcbsubtitle{Collision detection system}
+
+    Consider a model that predicts if there is an object, a human, or an animal ahead of a car.
+
+    \begin{minipage}[c]{0.6\linewidth}
+        \begin{center}
+          \begin{tikzpicture}
+            \node[draw, inner sep=2mm] (image) at (0, 0) {\includesvg[height=8mm]{car}};
+            \node[above=2mm of image, anchor=base, font=\scriptsize] {Input $X$};
+
+            \node[draw, fill=gronskasvag, right=0.75cm of image, inner sep=2mm] (model)
+            {\includesvg[height=8mm]{gear}};
+            \node[above=2mm of model, anchor=base, font=\scriptsize] {Model $g$};
+            \draw [->] (image) -- (model);
+
+            \node[draw, right=0.75cm of model, minimum height=1.2cm, font=\scriptsize, align=center] (prediction)
+            {\begin{tabular}{@{}ccc@{}}
+               \includesvg[width=6mm]{barrier} & \includesvg[width=6mm]{pedestrian} & \includesvg[width=6mm]{bear} \\
+               80\% & 0\% & 20\% \\
+             \end{tabular}};
+           \node[above=2mm of prediction, anchor=base, font=\scriptsize] {Prediction $g(X) \in \Delta^m$};
+           \draw [->] (model) -- (prediction);
+         \end{tikzpicture}
+       \end{center}
+     \end{minipage}%
+     \begin{minipage}[c]{0.4\linewidth}
+       We use $m$ for the number of classes, and
+       $\Delta^m \coloneqq \{ z \in [0,1]^m \colon \|z\|_1 = 1\}$ for the
+       $(m-1)$-dimensional probability simplex.
+     \end{minipage}\vspace*{\baselineskip}
+
+     If the model is calibrated we know that for all inputs with this
+     prediction there is an object ahead 80\% of the time, a human 0\%
+     of the time, and an animal 20\% of the time.
+
+     \begin{center}
+       \begin{tikzpicture}
+         \node[minimum height=1.2cm, inner sep=2mm] (image) at (0, 0)
+         {\begin{tabular}{@{}ccc@{}}
+            \includesvg[height=3mm]{car0} & \includesvg[height=3mm]{car1} & \includesvg[height=3mm]{car2} \\
+            \includesvg[height=3mm]{car3} & \includesvg[height=3mm]{car4} & $\cdots$ \\
+          \end{tabular}};
+
+        \node[draw, fill=gronskasvag, right=0.75cm of image, inner sep=2mm] (model)
+        {\includesvg[height=8mm]{gear}};
+        \draw [->] (image) -- (model);
+
+        \node[draw, right=0.75cm of model, minimum height=1.2cm, font=\scriptsize, align=center] (prediction)
+        {\begin{tabular}{@{}ccc@{}}
+           \includesvg[width=6mm]{barrier} & \includesvg[width=6mm]{pedestrian} & \includesvg[width=6mm]{bear} \\
+           80\% & 0\% & 20\% \\
+         \end{tabular}};
+        \draw [->] (model) -- (prediction);
+
+        \node[right=1cm of prediction] (empirical)
+        {\begin{tabular}{@{}cccccc@{}} \toprule
+           \multicolumn{4}{c}{\includesvg[width=3mm]{barrier}} & \includesvg[width=3mm]{pedestrian} & \includesvg[width=3mm]{bear} \\ \midrule
+           \includesvg[height=3mm]{car0} & \includesvg[height=3mm]{car2} & \includesvg[height=3mm]{car3} & \includesvg[height=3mm]{car4} & & \includesvg[height=3mm]{car1} \\
+           $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & & $\vdots$ \\ \bottomrule
+         \end{tabular}};
+        \node[above=2mm of empirical, anchor=base, font=\scriptsize] (A) {Empirical frequency $r(g(X)) \in \Delta^m$};
+        \node[font=\scriptsize] at (prediction |- A) {Prediction $g(X) \in \Delta^m$};
+
+        \path (prediction) -- node [font=\boldmath\Huge, color=uured, align=center, midway] {$=$} (empirical);
+      \end{tikzpicture}
+    \end{center}
+}
+
+  \posterbox[adjusted title={Quantifying calibration - a unifying framework}, colback=gryningsvag]{name=error,column=1,span=3,between=calibration and footline}{
+    \begin{tcolorbox}[colback=blondstark]
+      We define the \hl{calibration error}~($\measure$) of model $g$ with respect to a class $\mathcal{F}$ of functions $f \colon \Delta^m \to \mathbb{R}^m$ as
+      \begin{equation*}
+        \measure[\mathcal{F}, g] \coloneqq \sup_{f \in \mathcal{F}} \Expect\left[\transpose{(r(g(X)) - g(X))} f(g(X)) \right].
+      \end{equation*}
+    \end{tcolorbox}
+
+    By design, if model $g$ is calibrated then the $\measure$ is zero, regardless of $\mathcal{F}$.
+
+    \tcbsubtitle{Kernel calibration error}
+
+    \begin{tcolorbox}[colback=blondstark]
+      We define the \hl{kernel calibration error} ($\kernelmeasure$)
+      of model $g$ with respect to a matrix-valued kernel
+      $k \colon \Delta^m \times \Delta^m \to \mathbb{R}^{m \times m}$ as
+      \begin{equation*}
+        \kernelmeasure[k, g] \coloneqq \measure[\mathcal{F}, g],
+      \end{equation*}
+      where $\mathcal{F}$ is the unit ball in the reproducing kernel
+      Hilbert space corresponding to $k$.
+    \end{tcolorbox}
+
+    If $k$ is a universal kernel, then the $\kernelmeasure$ is zero if
+    and only if model $g$ is calibrated.
+
+    \tcbsubtitle{Relation to existing measures}
+    \begin{itemize}
+    \item For common distances $d$ the expected calibration error ($\ECE$)
+      \begin{equation}\label{eq:ece}
+        \ECE[d, g] = \Expect[d(r(g(X)), g(X))]
+      \end{equation}
+      can be formulated as a $\measure$.
+
+    \item The framework captures the maximum mean calibration error as well.
+    \end{itemize}
+  }
+
+  \posterbox[adjusted title=The paper in 30 seconds, colback=blondmellan]{name=summary,column=1,span=2,between=title and error}{
     \begin{itemize}
     \item We propose a \hl{unifying framework} of calibration errors
       that allows us to derive a new \hl{kernel calibration error} with
@@ -217,155 +331,103 @@
     \end{itemize}
   }
 
-  \posterbox[adjusted title={Motivation - what is a calibrated model?}, colback=blondsvag]{name=calibration,column=2,span=2,below=title}{
+  \posterbox[adjusted title={Estimating the calibration error}, colback=skymningsvag]{name=estimation,column=4,span=3,below=calibration}{
+    We want to estimate the $\measure$ of model $g$ using a validation
+    data set $\{(X_i, Y_i)\}_{i=1}^n$ of i.i.d.\ pairs of inputs and labels.
+
+    \tcbsubtitle{Kernel calibration error}
+
+    For $i,j \in \{1,\ldots,n\}$, let
+    $h_{i,j} \coloneqq \transpose{(e_{Y_i} - g(X_i))} k(g(X_i), g(X_j)) (e_{Y_j} - g(X_j))$,
+    where $e_i \in \Delta^m$ denotes the $i$th unit vector.
+
     \begin{tcolorbox}[colback=blondstark]
+      If $\mathbb{E}[\|k(g(X),g(X))\|] < \infty$, then \hl{consistent estimators}
+      of the squared kernel calibration error
+      $\squaredkernelmeasure[k, g] \coloneqq \kernelmeasure[k,g]^2$ are:
       \begin{center}
-        A \hl{calibrated model} yields predictions consistent with empirically observed frequencies.
+        \begin{tabular}{llll} \toprule
+          Notation & Definition & Properties & Complexity\\ \midrule
+          $\biasedskce$ & $n^{-2} \sum_{i,j=1}^n h_{i,j}$ & biased & $O(n^2)$ \\
+          $\unbiasedskce$ & $ {\binom{n}{2}}^{-1} \sum_{1 \leq i < j \leq n} h_{i,j}$ & unbiased & $O(n^2)$ \\
+          $\linearskce$ & $ {\lfloor n/2\rfloor}^{-1} \sum_{i = 1}^{\lfloor n / 2\rfloor} h_{2i-1,2i}$ & unbiased & $O(n)$ \\ \bottomrule
+        \end{tabular}
       \end{center}
     \end{tcolorbox}
 
-    \tcbsubtitle{ex) collision detection system}
-    \begin{minipage}[t]{0.55\linewidth}
-      \begin{center}
-        \begin{tikzpicture}
-          \node[draw, inner sep=2mm] (image) at (0, 0)
-          {\includesvg[height=9mm]{car}};
-          \node[above=2mm of image, anchor=base] {Input $X$};
+    \tcbsubtitle{Relation to the expected calibration error}
 
-          \node[draw, fill=gronskasvag, right=0.75cm of image, inner sep=2mm] (model)
-          {\includesvg[height=9mm]{gear}};
-          \node[above=2mm of model, anchor=base] {Model $g$};
-          \draw [->] (image) -- (model);
-
-          \node[draw, right=0.75cm of model, minimum height=1.3cm, font=\scriptsize, align=center] (prediction)
-          {\begin{tabular}{@{}ccc@{}}
-             \includesvg[width=7mm]{barrier} & \includesvg[width=7mm]{pedestrian} & \includesvg[width=7mm]{bear} \\
-             80\% & 0\% & 20\% \\
-           \end{tabular}};
-         \node[above=2mm of prediction, anchor=base] {Prediction $g(X)$};
-         \draw [->] (model) -- (prediction);
-       \end{tikzpicture}
-     \end{center}
-   \end{minipage}%
-   \begin{minipage}[t]{0.45\linewidth}
-
-   \end{minipage}
-
-   If model $g$ is calibrated we know that for all inputs with this
-   prediction there is an object ahead 80\% of the time, a human 0\%
-   of the time, and an animal 20\% of the time.
-
-   \begin{center}
-     \begin{tikzpicture}
-       \node[minimum height=1.3cm] (image) at (0, 0)
-       {\begin{tabular}{@{}ccc@{}}
-          \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} \\
-          \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & $\cdots$ \\
-        \end{tabular}};
-
-       \node[draw, fill=gronskasvag, right=0.75cm of image, inner sep=2mm] (model)
-       {\includesvg[height=9mm]{gear}};
-       \draw [->] (image) -- (model);
-
-       \node[draw, right=0.75cm of model, minimum height=1.3cm, font=\scriptsize, align=center] (prediction)
-       {\begin{tabular}{@{}ccc@{}}
-          \includesvg[width=7mm]{barrier} & \includesvg[width=7mm]{pedestrian} & \includesvg[width=7mm]{bear} \\
-          80\% & 0\% & 20\% \\
-        \end{tabular}};
-      \draw [->] (model) -- (prediction);
-
-      \node[right=1cm of prediction] (empirical)
-      {\begin{tabular}{@{}cccccc@{}}
-         \multicolumn{4}{c}{\includesvg[width=5mm]{barrier}} & \includesvg[width=5mm]{pedestrian} & \includesvg[width=5mm]{bear} \\ \midrule
-         \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & \includesvg[height=3mm]{car} & & \includesvg[height=3mm]{car} \\
-         $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & & $\vdots$ \\ \bottomrule
-       \end{tabular}};
-     \node[below=1mm of empirical] (A) {Empirical frequency $r(g(X))$};
-     \node at (prediction |- A) {Prediction $g(X)$};
-
-     \path (prediction) -- node [font=\boldmath\Huge, color=uured, align=center, midway] {$=$} (empirical);
-   \end{tikzpicture}
- \end{center}
-}
-
-  \posterbox[adjusted title={Calibration error}]{name=error,column=2,span=2,below=calibration}{
-    \begin{tcolorbox}[colback=sandstark]
-      The \hl{calibration error}~($\measure$) of model $g$ w.r.t.\ a class $\mathcal{F}$ of functions $f \colon \Delta^m \to \mathbb{R}^m$ is
-      \begin{equation*}
-        \measure[\mathcal{F}, g] \coloneqq \sup_{f \in \mathcal{F}} \Expect\left[{(r(g(X)) - g(X))}^\intercal f(g(X)) \right].
-      \end{equation*}
-    \end{tcolorbox}
-
-    \vspace{-\topsep}
-    \begin{itemize}
-    \item By design, if model $g$ is calibrated then the $\measure$ is zero, regardless of $\mathcal{F}$.
-    \item The $\measure$ is equal to the common expected calibration error ($\ECE$)
-      \begin{equation}\label{eq:ece}
-        \ECE[d, g] = \Expect[d(r(g(X)), g(X))]
-      \end{equation}
-      for certain choices of $\mathcal{F}$ and distances $d$ such as the city block distance, the total variation distance, and the squared Euclidean distance.
-    \item The $\measure$ captures also the maximum mean calibration error.
-    \end{itemize}
+    Standard estimators of the $\ECE$ are usually biased and inconsistent.
+    The main difficulty is the estimation of the empirical frequencies
+    $r(g(X))$ in \cref{eq:ece}. For the $\kernelmeasure$ there is no need
+    to estimate them!
   }
 
-  \posterbox[adjusted title={Kernel calibration error}]{name=kce,column=2,span=2,below=error}{
-    Let $\mathcal{F}$ be the unit ball in a reproducing kernel Hilbert space with matrix-valued kernel $k \colon \Delta^m \times \Delta^m \to \mathbb{R}^{m \times m}$. Then we define the \hl{kernel calibration error} ($\kernelmeasure$) with respect to kernel $k$ as $\kernelmeasure[k, g] \coloneqq \measure[\mathcal{F}, g]$.
+  \posterbox[adjusted title={Example: A simple matrix-valued kernel}]{name=kernel,column=4,span=3,between=estimation and footline}{
+    If $\tilde{k} \colon \Delta^m \times \Delta^m \to \mathbb{R}$ is a
+    real-valued kernel and $M \in \mathbb{R}^{m \times m}$ is positive semi-definite,
+    then $k = M \tilde{k}$ is a matrix-valued kernel.
+  }
 
-    \begin{tcolorbox}[colback=blondsvag]
-      An example of a matrix-valued kernel is $k(a, b) = M \tilde{k}(a, b)$, where $M \in \mathbb{R}^{m\times m}$ is a positive semi-definite matrix and $\tilde{k} \colon \Delta^m \times \Delta^m \to \mathbb{R}$ is a real-valued kernel.
-    \end{tcolorbox}
+  \posterbox[adjusted title={Calibration tests - is my model calibrated?}]{name=statistics,column=7,span=4,below=top}{
+    In general, the $\measure$ does not have a meaningful unit or scale.
+    This renders it difficult to interpret an estimated non-zero error.
 
-    If $k$ is a universal kernel, then the $\kernelmeasure$ is zero if and only if model $g$ is calibrated.
+    \begin{center}
+      \begin{tikzpicture}[
+        declare function={normal(\m,\s)=1/(2*\s*sqrt(pi))*exp(-(x-\m)^2/(2*\s^2));},
+        declare function={binormal(\ma,\sa,\mb,\sb,\p)=(\p*normal(\ma,\sa)+(1-\p)*normal(\mb,\sb));}
+        ]
 
-    \begin{tcolorbox}[colback=sandstark]
-      If $\Expect[\|k(g(X),g(X))\|] < \infty$, then
-      \begin{equation}\label{eq:kce}
-        \kernelmeasure[k,g] = {\bigg(\Expect[{(e_Y - g(X))}^{\intercal} k(g(X), g(X')) {(e_{Y'} - g(X'))}]\bigg)}^{1/2},
-      \end{equation}
-      where $(X', Y')$ is an independent copy of $(X,Y)$ and $e_i$ denotes the $i$th unit vector.
+        \begin{axis}[
+          domain = -0.1:0.2,
+          no marks,
+          xlabel = calibration error estimate,
+          ylabel = density,
+          grid=major,
+          ymin = 0,
+          tick label style={font=\tiny},
+          label style={font=\small},
+          width = 0.73\textwidth,
+          height = 0.25\textwidth,
+          legend pos=outer north east,
+          legend cell align=left,
+          legend style=
+          {
+            fill=none,
+            draw=none,
+            inner sep={0pt},
+            font=\small,
+          }
+          ]
+
+          \draw [Dark2-A, thick] (0.07,\pgfkeysvalueof{/pgfplots/ymin}) -- (0.07,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {observed};
+
+          \draw[Dark2-B, thick] (0,\pgfkeysvalueof{/pgfplots/ymin}) -- (0,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {calibrated};
+
+          % mixture model of normal distributions
+          \addplot+ [color=Dark2-B, dashed, thick, samples=31, smooth, name path=A] {binormal(-0.05,0.01,0.05,0.03,0.5)};
+          \addlegendentry{distribution under $H_0$};
+
+          % indicate p-value
+          \path [name path=B] (\pgfkeysvalueof{/pgfplots/xmin},0) -- (\pgfkeysvalueof{/pgfplots/xmax},0);
+          \addplot+ [draw=Dark2-C, pattern color=Dark2-C, pattern={north east lines}] fill between [of=A and B, soft clip={domain=0.07:0.2}];
+          \addlegendentry{p-value};
+
+          % add comment
+          \node[anchor=west, align=left, text=Dark2-C, font=\small] (annotation) at (0.1, 10) {reject $H_0$ if the \\p-value is small};
+          \draw[->, >=stealth, thick, Dark2-C] (annotation) -- (0.08, 1);
+        \end{axis}
+      \end{tikzpicture}
+    \end{center}
+
+    \begin{tcolorbox}[colback=blondstark]
+      We derive \hl{well-founded bounds and approximations} of the p-value
+      based on the estimators of the $\squaredkernelmeasure$.
     \end{tcolorbox}
   }
 
-  \posterbox[adjusted title={Viewing estimators as test statistics}]{name=statistics,column=2,span=2,between=kce and footline}{
-    In general, the $\measure$ does not have a meaningful unit or scale. This renders it difficult to interpret an estimated non-zero error and to compare different models.
-
-    \begin{tcolorbox}[colback=sandstark]
-      For the consistent and unbiased estimators of the $\squaredkernelmeasure$ we derive \hl{bounds and approximations of the probability of false rejection} of a calibrated model.
-    \end{tcolorbox}
-
-    \vspace{-\topsep}
-    \begin{itemize}
-    \item These results allow us to test the hypothesis that model $g$ is calibrated.
-    \item The bounds enable us to transfer unintuitive calibration error estimates to an \hl{intuitive and interpretable} probabilistic setting.
-    \end{itemize}
-  }
-
-  \posterbox[adjusted title={Estimators of the calibration error}]{name=estimator,column=4,span=2,below=top}{
-    Consider the task of estimating the $\measure$ of model $g$ using a validation set $\{(X_i, Y_i)\}_{i=1}^n$ of i.i.d.\ random pairs of inputs and labels that are distributed according to $(X,Y)$.
-
-    \begin{itemize}
-    \item Standard estimators of the $\ECE$ are inconsistent and biased in many cases and can scale poorly to large $m$.
-
-      \begin{tcolorbox}[colback=blondsvag]
-        The main difficulty is the estimation of the function $r$ in \cref{eq:ece}. \Cref{eq:kce} shows that for $\kernelmeasure$ there is no explicit dependence on $r$!
-      \end{tcolorbox}
-
-    \item For $i,j \in \{1,\ldots,n\}$ define $h_{i,j} \coloneqq {(e_{Y_i} - g(X_i))}^\intercal k(g(X_i), g(X_j)) (e_{Y_j} - g(X_j))$.
-      \begin{tcolorbox}[colback=sandstark]
-        If $\mathbb{E}[\|k(g(X),g(X))\|] < \infty$, then the following estimators are \hl{consistent estimators of the squared kernel calibration error} $\squaredkernelmeasure[k, g] \coloneqq \kernelmeasure[k,g]^2$.
-        \begin{center}
-          \begin{tabular}{llll} \toprule
-            Notation & Definition & Properties & Complexity\\ \midrule
-            $\biasedskce$ & $n^{-2} \sum_{i,j=1}^n h_{i,j}$ & biased & $O(n^2)$ \\
-            $\unbiasedskce$ & $ {\binom{n}{2}}^{-1} \sum_{1 \leq i < j \leq n} h_{i,j}$ & unbiased & $O(n^2)$ \\
-            $\linearskce$ & $ {\lfloor n/2\rfloor}^{-1} \sum_{i = 1}^{\lfloor n / 2\rfloor} h_{2i-1,2i}$ & unbiased & $O(n)$ \\ \bottomrule
-          \end{tabular}
-        \end{center}
-      \end{tcolorbox}
-    \end{itemize}
-  }
-
-  \posterbox[adjusted title={Experiments}]{name=experiment,column=4,span=2,between=estimator and footline}{
+  \posterbox[adjusted title={Experiments}]{name=experiment,column=7,span=4,between=statistics and footline}{
     We construct data sets $\{g(X_i), Y_i\}_{i=1}^{250}$ of three models with $10$ classes by sampling predictions $g(X_i) \sim \Dir(0.1, \dots, 0.1)$ and labels $Y_i$ conditionally on $g(X_i)$ from
     \begin{align*}
       \text{\textbf{M1: }} &\Categorical(g(X_i)), &
