@@ -9,6 +9,7 @@
 % A3  : 297 x 420 mm    |
 % 2A0 : 1189 x 1682 mm  > Factor 4 => 11pt ~ 44 pt
 % 1m  : 1000 x 1414     > Factor 3.36 => 10pt ~ 34 pt
+\PassOptionsToPackage{force}{filehook} % see https://tex.stackexchange.com/questions/513051/filehook-error-with-memoir-after-update-texlive-2019-in-oct-15
 \documentclass[10pt]{article}
 
 \usepackage{luatex85}
@@ -85,7 +86,6 @@
   {
     columns=10,
     rows=1,
-    showframe=true, % useful for debugging
   },
   boxes =
   {
@@ -120,40 +120,40 @@
 \pgfplotsset{compat=1.16}
 \usetikzlibrary{positioning,arrows,arrows.meta,calc,decorations.markings,intersections,patterns}
 
-% general settings for plots
-\pgfplotsset{grid style=dashed}
-\pgfplotsset{enlargelimits=auto}
+\usepgfplotslibrary{groupplots,fillbetween}
+\usetikzlibrary{plotmarks}
 
-\usepgfplotslibrary{groupplots,fillbetween,colorbrewer}
-\usetikzlibrary{plotmarks,calc}
+% Use colorbrewer
+\usepgfplotslibrary{colorbrewer}
+\pgfplotsset{
+  % initialize Dark2-8:
+  cycle list/Dark2-8,
+  % combine it with ’mark list*’:
+  cycle multiindex* list={
+    mark list*\nextlist
+    Dark2-8\nextlist
+  },
+}
 
 % plotting options
-\pgfplotsset{table/search path={data/}}
-\pgfplotsset{max space between ticks=150}
-\pgfplotsset{every axis/.append style={axis background style={fill=gray!10}},tick label style={font={\footnotesize}}, label style={font={\small}}}
-\pgfplotsset{every axis plot/.append style={thick}}
-\pgfplotsset{every axis legend/.append style={font=\small, fill=none}}
+\pgfplotsset{every axis/.append style={axis background style={fill=gray!10}}}
 
 % automatic references
 \usepackage{cleveref}
 
 % some abbreviations
 \newcommand*{\Prob}{\mathbb{P}}
-\newcommand*{\E}{\mathbb{E}}
+\newcommand*{\Expect}{\mathbb{E}}
 \newcommand*{\transpose}[1]{{#1}^{\mathsf{T}}}
-\DeclareMathOperator*{\argmax}{arg\,max}
-\DeclareMathOperator{\ECE}{ECE}
-\DeclareMathOperator{\biasedskce}{SKCE_b}
-\DeclareMathOperator{\unbiasedskce}{SKCE_{uq}}
-\DeclareMathOperator{\linearskce}{SKCE_{ul}}
-\DeclareMathOperator{\asympunbiasedskce}{aSKCE_{uq}}
-\DeclareMathOperator{\asymplinearskce}{aSKCE_{ul}}
-\DeclareMathOperator{\measure}{CE}
-\DeclareMathOperator{\kernelmeasure}{KCE}
-\DeclareMathOperator{\squaredkernelmeasure}{SKCE}
-\DeclareMathOperator{\Expect}{\mathbb{E}}
-\DeclareMathOperator{\Dir}{Dir}
-\DeclareMathOperator{\Categorical}{Cat}
+\newcommand*{\ECE}{\mathup{ECE}}
+\newcommand*{\measure}{\mathup{CE}}
+\newcommand*{\kernelmeasure}{\mathup{KCE}}
+\newcommand*{\squaredkernelmeasure}{\mathup{SKCE}}
+\newcommand*{\biasedestimator}{\widehat{\mathup{SKCE}}_{\mathup{b}}}
+\newcommand*{\unbiasedestimator}{\widehat{\mathup{SKCE}}_{\mathup{uq}}}
+\newcommand*{\linearestimator}{\widehat{\mathup{SKCE}}_{\mathup{ul}}}
+\newcommand*{\Dir}{\mathup{Dir}}
+\newcommand*{\Categorical}{\mathup{Cat}}
 
 % metadata
 \title{Calibration tests in multi-class classification:\\ A unifying framework}
@@ -273,7 +273,7 @@
     \end{center}
 }
 
-  \posterbox[adjusted title={Quantifying calibration - a unifying framework}, colback=gryningsvag]{name=error,column=1,span=3,between=calibration and footline}{
+  \posterbox[adjusted title={Quantifying calibration - a unifying framework}, colback=gryningmellan]{name=error,column=1,span=3,between=calibration and footline}{
     \begin{tcolorbox}[colback=blondstark]
       We define the \hl{calibration error}~($\measure$) of model $g$ with respect to a class $\mathcal{F}$ of functions $f \colon \Delta^m \to \mathbb{R}^m$ as
       \begin{equation*}
@@ -331,7 +331,7 @@
     \end{itemize}
   }
 
-  \posterbox[adjusted title={Estimating the calibration error}, colback=skymningsvag]{name=estimation,column=4,span=3,below=calibration}{
+  \posterbox[adjusted title={Estimating the calibration error}, colback=gronskasvag]{name=estimation,column=4,span=3,below=calibration}{
     We want to estimate the $\measure$ of model $g$ using a validation
     data set $\{(X_i, Y_i)\}_{i=1}^n$ of i.i.d.\ pairs of inputs and labels.
 
@@ -348,9 +348,9 @@
       \begin{center}
         \begin{tabular}{llll} \toprule
           Notation & Definition & Properties & Complexity\\ \midrule
-          $\biasedskce$ & $n^{-2} \sum_{i,j=1}^n h_{i,j}$ & biased & $O(n^2)$ \\
-          $\unbiasedskce$ & $ {\binom{n}{2}}^{-1} \sum_{1 \leq i < j \leq n} h_{i,j}$ & unbiased & $O(n^2)$ \\
-          $\linearskce$ & $ {\lfloor n/2\rfloor}^{-1} \sum_{i = 1}^{\lfloor n / 2\rfloor} h_{2i-1,2i}$ & unbiased & $O(n)$ \\ \bottomrule
+          $\biasedestimator$ & $n^{-2} \sum_{i,j=1}^n h_{i,j}$ & biased & $O(n^2)$ \\
+          $\unbiasedestimator$ & $ {\binom{n}{2}}^{-1} \sum_{1 \leq i < j \leq n} h_{i,j}$ & unbiased & $O(n^2)$ \\
+          $\linearestimator$ & $ {\lfloor n/2\rfloor}^{-1} \sum_{i = 1}^{\lfloor n / 2\rfloor} h_{2i-1,2i}$ & unbiased & $O(n)$ \\ \bottomrule
         \end{tabular}
       \end{center}
     \end{tcolorbox}
@@ -363,87 +363,106 @@
     to estimate them!
   }
 
-  \posterbox[adjusted title={Example: A simple matrix-valued kernel}]{name=kernel,column=4,span=3,between=estimation and footline}{
+  \posterbox[adjusted title={Example: A simple matrix-valued kernel}, colback=sandsvag]{name=kernel,column=4,span=3,between=estimation and footline}{
     If $\tilde{k} \colon \Delta^m \times \Delta^m \to \mathbb{R}$ is a
     real-valued kernel and $M \in \mathbb{R}^{m \times m}$ is positive semi-definite,
     then $k = M \tilde{k}$ is a matrix-valued kernel.
   }
 
-  \posterbox[adjusted title={Calibration tests - is my model calibrated?}]{name=statistics,column=7,span=4,below=top}{
-    In general, the $\measure$ does not have a meaningful unit or scale.
+  \posterbox[adjusted title={Is my model calibrated?}, colback=sandsvag]{name=statistics,column=7,span=4,below=top}{
+    In general, calibration errors have no meaningful unit or scale.
     This renders it difficult to interpret an estimated non-zero error.
 
-    \begin{center}
-      \begin{tikzpicture}[
-        declare function={normal(\m,\s)=1/(2*\s*sqrt(pi))*exp(-(x-\m)^2/(2*\s^2));},
-        declare function={binormal(\ma,\sa,\mb,\sb,\p)=(\p*normal(\ma,\sa)+(1-\p)*normal(\mb,\sb));}
-        ]
-
-        \begin{axis}[
-          domain = -0.1:0.2,
-          no marks,
-          xlabel = calibration error estimate,
-          ylabel = density,
-          grid=major,
-          ymin = 0,
-          tick label style={font=\tiny},
-          label style={font=\small},
-          width = 0.73\textwidth,
-          height = 0.25\textwidth,
-          legend pos=outer north east,
-          legend cell align=left,
-          legend style=
-          {
-            fill=none,
-            draw=none,
-            inner sep={0pt},
-            font=\small,
-          }
+    \tcbsubtitle{Calibration tests}
+    \begin{minipage}[t]{0.35\linewidth}
+      \vspace*{0pt}
+      We can use the calibration error estimates to perform a
+      statistical test of the null hypothesis
+      \begin{equation*}
+        H_0 \coloneqq \text{\enquote{the model is calibrated}}.
+      \end{equation*}
+    \end{minipage}
+    \begin{minipage}[t]{0.65\linewidth}
+      \vspace*{0pt}
+      \begin{center}
+        \begin{tikzpicture}[
+          declare function={normal(\m,\s)=1/(2*\s*sqrt(pi))*exp(-(x-\m)^2/(2*\s^2));},
+          declare function={binormal(\ma,\sa,\mb,\sb,\p)=(\p*normal(\ma,\sa)+(1-\p)*normal(\mb,\sb));}
           ]
 
-          \draw [Dark2-A, thick] (0.07,\pgfkeysvalueof{/pgfplots/ymin}) -- (0.07,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {observed};
+          \begin{axis}[
+            domain = -0.1:0.2,
+            no marks,
+            xlabel = calibration error estimate,
+            ylabel = density,
+            grid=major,
+            ymin = 0,
+            tick label style={font=\tiny},
+            label style={font=\small},
+            width = 0.75\linewidth,
+            height = 0.33\linewidth,
+            legend pos=outer north east,
+            legend cell align=left,
+            legend style=
+            {
+              fill=none,
+              draw=none,
+              inner sep={0pt},
+              font=\small,
+              align=left,
+            }
+            ]
 
-          \draw[Dark2-B, thick] (0,\pgfkeysvalueof{/pgfplots/ymin}) -- (0,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {calibrated};
+            \draw [Dark2-A, thick] (0.07,\pgfkeysvalueof{/pgfplots/ymin}) -- (0.07,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {observed};
 
-          % mixture model of normal distributions
-          \addplot+ [color=Dark2-B, dashed, thick, samples=31, smooth, name path=A] {binormal(-0.05,0.01,0.05,0.03,0.5)};
-          \addlegendentry{distribution under $H_0$};
+            \draw[Dark2-B, thick] (0,\pgfkeysvalueof{/pgfplots/ymin}) -- (0,\pgfkeysvalueof{/pgfplots/ymax}) node [at end, above, anchor=south east, sloped, font=\small] {calibrated};
 
-          % indicate p-value
-          \path [name path=B] (\pgfkeysvalueof{/pgfplots/xmin},0) -- (\pgfkeysvalueof{/pgfplots/xmax},0);
-          \addplot+ [draw=Dark2-C, pattern color=Dark2-C, pattern={north east lines}] fill between [of=A and B, soft clip={domain=0.07:0.2}];
-          \addlegendentry{p-value};
+            % mixture model of normal distributions
+            \addplot+ [color=Dark2-B, dashed, thick, samples=31, smooth, name path=A] {binormal(-0.05,0.01,0.05,0.03,0.5)};
+            \addlegendentry{distribution\\ under $H_0$};
 
-          % add comment
-          \node[anchor=west, align=left, text=Dark2-C, font=\small] (annotation) at (0.1, 10) {reject $H_0$ if the \\p-value is small};
-          \draw[->, >=stealth, thick, Dark2-C] (annotation) -- (0.08, 1);
-        \end{axis}
-      \end{tikzpicture}
-    \end{center}
+            % indicate p-value
+            \path [name path=B] (\pgfkeysvalueof{/pgfplots/xmin},0) -- (\pgfkeysvalueof{/pgfplots/xmax},0);
+            \addplot+ [draw=Dark2-C, pattern color=Dark2-C, pattern={north east lines}] fill between [of=A and B, soft clip={domain=0.07:0.2}];
+            \addlegendentry{p-value};
+
+            % add comment
+            \node[anchor=west, align=left, text=Dark2-C, font=\small] (annotation) at (0.075, 10) {reject $H_0$ if the \\p-value is small};
+            \draw[->, >=stealth, thick, Dark2-C] (annotation) -- (0.08, 1);
+          \end{axis}
+        \end{tikzpicture}
+      \end{center}
+    \end{minipage}
 
     \begin{tcolorbox}[colback=blondstark]
       We derive \hl{well-founded bounds and approximations} of the p-value
-      based on the estimators of the $\squaredkernelmeasure$.
+      based on the $\squaredkernelmeasure$.
     \end{tcolorbox}
   }
 
-  \posterbox[adjusted title={Experiments}]{name=experiment,column=7,span=4,between=statistics and footline}{
-    We construct data sets $\{g(X_i), Y_i\}_{i=1}^{250}$ of three models with $10$ classes by sampling predictions $g(X_i) \sim \Dir(0.1, \dots, 0.1)$ and labels $Y_i$ conditionally on $g(X_i)$ from
-    \begin{align*}
-      \text{\textbf{M1: }} &\Categorical(g(X_i)), &
-                                                    \text{\textbf{M2: }} &0.5\Categorical(g(X_i)) + 0.5\Categorical(1,0,\dots,0), &
-                                                                                                                                    \text{\textbf{M3: }} &\Categorical(0.1, \dots, 0.1).
-    \end{align*}
-    Model \textbf{M1} is calibrated, and models \textbf{M2} and \textbf{M3} are uncalibrated.
+  \posterbox[adjusted title={Experiments}, colback=gryningmellan]{name=experiment,column=7,span=4,between=statistics and footline}{
+    We construct synthetic data sets $\{(g(X_i), Y_i)\}_{i=1}^{250}$
+    from three generative models with $10$ classes by sampling
+    predictions $g(X_i) \sim \Dir(0.1, \dots, 0.1)$ and labels $Y_i$
+    conditionally on $g(X_i)$ from
+    \begin{equation*}
+      \symbf{M1}\colon \, \Categorical(g(X_i)), \quad
+      \symbf{M2}\colon \, 0.5\Categorical(g(X_i)) + 0.5\Categorical(1,0,\dots,0), \quad
+      \symbf{M3}\colon \, \Categorical(0.1, \dots, 0.1).
+    \end{equation*}
+    Model $\symbf{M1}$ is calibrated, and models $\symbf{M2}$ and
+    $\symbf{M3}$ are uncalibrated.
+
+    \tcbsubtitle{Calibration error estimates}
 
     \begin{center}
-      \input{figures/comparison_estimates.tex}
-      \captionof{figure}{Calibration error estimates of $10^4$ randomly sampled data sets. The solid black line indicates the mean of the calibration error estimates, and the dashed red line displays the true calibration error of the model.}
+      \input{figures/errors_comparison.tex}
     \end{center}
 
+    \tcbsubtitle{Empirical test errors}
+
     \begin{center}
-      \input{figures/comparison_tests.tex}
-      \captionof{figure}{Test errors versus bounds/approximations of the probability of false rejection, evaluated on $500$ ($\asympunbiasedskce$) and $10^4$ (all other test statistics) randomly sampled data sets. For model \textbf{M1} the type I error is shown, for both uncalibrated models the type II error is plotted.}
+      \input{figures/pvalues_comparison.tex}
     \end{center}
   }
 \end{tcbposter}
