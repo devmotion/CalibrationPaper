@@ -344,7 +344,7 @@
     \begin{tcolorbox}[colback=blondstark]
       If $\mathbb{E}[\|k(g(X),g(X))\|] < \infty$, then \hl{consistent estimators}
       of the squared kernel calibration error
-      $\squaredkernelmeasure[k, g] \coloneqq \kernelmeasure[k,g]^2$ are:
+      $\squaredkernelmeasure[k, g] \coloneqq \kernelmeasure^2[k,g]$ are:
       \begin{center}
         \begin{tabular}{llll} \toprule
           Notation & Definition & Properties & Complexity\\ \midrule
@@ -365,8 +365,11 @@
 
   \posterbox[adjusted title={Example: A simple matrix-valued kernel}, colback=sandsvag]{name=kernel,column=4,span=3,between=estimation and footline}{
     If $\tilde{k} \colon \Delta^m \times \Delta^m \to \mathbb{R}$ is a
-    real-valued kernel and $M \in \mathbb{R}^{m \times m}$ is positive semi-definite,
+    kernel and $M \in \mathbb{R}^{m \times m}$ is positive semi-definite,
     then $k = M \tilde{k}$ is a matrix-valued kernel.
+    If $\tilde{k}$ is universal (e.g., if $\tilde{k}$ is a Gaussian or
+    Laplacian kernel), then $k$ is universal if and only if $M$ is
+    positive definite.
   }
 
   \posterbox[adjusted title={Is my model calibrated?}, colback=sandsvag]{name=statistics,column=7,span=4,below=top}{
@@ -441,7 +444,7 @@
   }
 
   \posterbox[adjusted title={Experiments}, colback=gryningmellan]{name=experiment,column=7,span=4,between=statistics and footline}{
-    We construct synthetic data sets $\{(g(X_i), Y_i)\}_{i=1}^{250}$
+    We sample $10^4$ synthetic data sets $\{(g(X_i), Y_i)\}_{i=1}^{250}$
     from three generative models with $10$ classes by sampling
     predictions $g(X_i) \sim \Dir(0.1, \dots, 0.1)$ and labels $Y_i$
     conditionally on $g(X_i)$ from
@@ -455,15 +458,60 @@
 
     \tcbsubtitle{Calibration error estimates}
 
-    \begin{center}
-      \input{figures/errors_comparison.tex}
-    \end{center}
+    \begin{minipage}[t]{0.35\linewidth}
+      \vspace*{0pt}
+      We show the distribution of a standard estimator of the $\ECE$,
+      denoted by $\widehat{\ECE}$, and of the three proposed estimators
+      of the $\squaredkernelmeasure$ with kernel
+      \begin{equation*}
+        k(x, y) = \exp{(- \|x - y\| / \nu)} \symbf{I}_{10},
+      \end{equation*}
+      where the kernel bandwidth $\nu > 0$ is chosen by the median
+      heuristic.
+
+      \vspace{\baselineskip}
+
+      The solid line indicates the sample mean of the estimates, and the
+      dashed line displays the true calibration error.
+    \end{minipage}%
+    \begin{minipage}[t]{0.65\linewidth}
+      \vspace*{0pt}
+      \begin{center}
+        \input{figures/errors_comparison.tex}
+      \end{center}
+    \end{minipage}
 
     \tcbsubtitle{Empirical test errors}
 
-    \begin{center}
-      \input{figures/pvalues_comparison.tex}
-    \end{center}
+    \begin{minipage}[t]{0.4\linewidth}
+      \vspace*{0pt}
+      We evaluate the derived bounds $\symbf{D}_{\mathup{b}}$,
+      $\symbf{D}_{\mathup{uq}}$, and $\symbf{D}_{\mathup{ul}}$, and
+      approximations $\symbf{A}_{\mathup{uq}}$ and
+      $\symbf{A}_{\mathup{l}}$ of the p-value based on the
+      $\squaredkernelmeasure$. We compare them with a previously
+      proposed hypothesis test for the standard $\ECE$ estimator
+      ($\symbf{C}$).
+
+      \vspace{\baselineskip}
+
+      For a chosen significance level $\alpha$ we compute from the
+      p-value approximations $p_1,\ldots,p_{10^4}$ the empirical test
+      error
+      \begin{equation*}
+        \frac{1}{10^4} \sum_{i=1}^{10^4} \mathbb{1}_{[0, \alpha]}(p_i) \quad \text{ (for } \symbf{M1} \text{)}
+      \end{equation*}
+      and
+      \begin{equation*}
+        \frac{1}{10^4} \sum_{i=1}^{10^4} \mathbb{1}_{(\alpha, 1]}(p_i) \quad \text{ (for } \symbf{M2} \text{ and } \symbf{M3} \text{)}.
+      \end{equation*}
+    \end{minipage}%
+    \begin{minipage}[t]{0.6\linewidth}
+      \vspace*{0pt}
+      \begin{center}
+        \input{figures/pvalues_comparison.tex}
+      \end{center}
+    \end{minipage}
   }
 \end{tcbposter}
 \end{document}
