@@ -2,6 +2,7 @@
 % arara: biber
 % arara: lualatex: { shell: true }
 % arara: lualatex: { shell: true }
+\PassOptionsToPackage{force}{filehook} % see https://tex.stackexchange.com/questions/513051/filehook-error-with-memoir-after-update-texlive-2019-in-oct-15
 \documentclass[aspectratio=169]{beamer}
 % \documentclass[handout]{beamer} % for handouts
 
@@ -441,11 +442,11 @@
   \vspace*{3\baselineskip}
 	Thank you for listening!
 
-	%Come see our poster
+	Come see our poster: \#39
   \vspace*{2\baselineskip}
 	\begin{flushleft}
     \normalsize
-		Paper, code, and slides available at:\\
+		Code available at:\\
     \url{https://github.com/devmotion/CalibrationPaper}
 	\end{flushleft}
 \end{frame}
