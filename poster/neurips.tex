@@ -209,7 +209,7 @@
 
     Consider a model that predicts if there is an object, a human, or an animal ahead of a car.
 
-    \begin{minipage}[c]{0.6\linewidth}
+    \begin{minipage}[c]{0.57\linewidth}
         \begin{center}
           \begin{tikzpicture}
             \node[draw, inner sep=2mm] (image) at (0, 0) {\includesvg[height=8mm]{car}};
@@ -230,7 +230,7 @@
          \end{tikzpicture}
        \end{center}
      \end{minipage}%
-     \begin{minipage}[c]{0.4\linewidth}
+     \begin{minipage}[c]{0.43\linewidth}
        We use $m$ for the number of classes, and
        $\Delta^m \coloneqq \{ z \in [0,1]^m \colon \|z\|_1 = 1\}$ for the
        $(m-1)$-dimensional probability simplex.
@@ -277,8 +277,9 @@
     \begin{tcolorbox}[colback=blondstark]
       We define the \hl{calibration error}~($\measure$) of model $g$ with respect to a class $\mathcal{F}$ of functions $f \colon \Delta^m \to \mathbb{R}^m$ as
       \begin{equation*}
-        \measure[\mathcal{F}, g] \coloneqq \sup_{f \in \mathcal{F}} \Expect\left[\transpose{(r(g(X)) - g(X))} f(g(X)) \right].
+        \measure[\mathcal{F}, g] \coloneqq \sup_{f \in \mathcal{F}} \Expect\left[\transpose{(r(g(X)) - g(X))} f(g(X)) \right],
       \end{equation*}
+      where $r(g(X)) \in \Delta^m$ is the empirical frequency of prediction $g(X)$.
     \end{tcolorbox}
 
     By design, if model $g$ is calibrated then the $\measure$ is zero, regardless of $\mathcal{F}$.
@@ -287,7 +288,7 @@
 
     \begin{tcolorbox}[colback=blondstark]
       We define the \hl{kernel calibration error} ($\kernelmeasure$)
-      of model $g$ with respect to a matrix-valued kernel
+      of model $g$ with respect to a kernel
       $k \colon \Delta^m \times \Delta^m \to \mathbb{R}^{m \times m}$ as
       \begin{equation*}
         \kernelmeasure[k, g] \coloneqq \measure[\mathcal{F}, g],
@@ -297,7 +298,7 @@
     \end{tcolorbox}
 
     If $k$ is a universal kernel, then the $\kernelmeasure$ is zero if
-    and only if model $g$ is calibrated.
+    and only if $g$ is calibrated.
 
     \tcbsubtitle{Relation to existing measures}
     \begin{itemize}
@@ -331,20 +332,31 @@
     \end{itemize}
   }
 
-  \posterbox[adjusted title={Estimating the calibration error}, colback=gronskasvag]{name=estimation,column=4,span=3,below=calibration}{
+  \posterbox[adjusted title={Estimating the calibration error}, colback=gronskasvag]{name=estimation,column=4,span=3,between=calibration and footline}{
     We want to estimate the $\measure$ of model $g$ using a validation
     data set $\{(X_i, Y_i)\}_{i=1}^n$ of i.i.d.\ pairs of inputs and labels.
 
     \tcbsubtitle{Kernel calibration error}
 
+    \begin{tcolorbox}[colback=blondstark]
+      If $\Expect[\|k(g(X), g(X))\|] < \infty$, then the \hl{squared kernel
+      calibration error}
+      $\squaredkernelmeasure[k, g] \coloneqq \kernelmeasure^2[k,g]$ is
+      given by
+      \begin{equation}\label{eq:skce}
+        \squaredkernelmeasure[k, g] = \Expect\left[\transpose{(e_Y - g(X))} k(g(X), g(X)) {(e_{Y'} - g(X'))} \right],
+      \end{equation}
+      where $(X', Y')$ is an independent copy of $(X, Y)$ and
+      $e_i \in \Delta^m$ denotes the $i$th unit vector.
+    \end{tcolorbox}
+
     For $i,j \in \{1,\ldots,n\}$, let
-    $h_{i,j} \coloneqq \transpose{(e_{Y_i} - g(X_i))} k(g(X_i), g(X_j)) (e_{Y_j} - g(X_j))$,
-    where $e_i \in \Delta^m$ denotes the $i$th unit vector.
+    $h_{i,j} \coloneqq \transpose{(e_{Y_i} - g(X_i))} k(g(X_i), g(X_j)) (e_{Y_j} - g(X_j))$.
 
     \begin{tcolorbox}[colback=blondstark]
-      If $\mathbb{E}[\|k(g(X),g(X))\|] < \infty$, then \hl{consistent estimators}
-      of the squared kernel calibration error
-      $\squaredkernelmeasure[k, g] \coloneqq \kernelmeasure^2[k,g]$ are:
+      If $\Expect[\|k(g(X),g(X))\|] < \infty$, then \hl{consistent estimators}
+      of the $\squaredkernelmeasure$ are:
+     are:
       \begin{center}
         \begin{tabular}{llll} \toprule
           Notation & Definition & Properties & Complexity\\ \midrule
@@ -360,16 +372,7 @@
     Standard estimators of the $\ECE$ are usually biased and inconsistent.
     The main difficulty is the estimation of the empirical frequencies
     $r(g(X))$ in \cref{eq:ece}. For the $\kernelmeasure$ there is no need
-    to estimate them!
-  }
-
-  \posterbox[adjusted title={Example: A simple matrix-valued kernel}, colback=sandsvag]{name=kernel,column=4,span=3,between=estimation and footline}{
-    If $\tilde{k} \colon \Delta^m \times \Delta^m \to \mathbb{R}$ is a
-    kernel and $M \in \mathbb{R}^{m \times m}$ is positive semi-definite,
-    then $k = M \tilde{k}$ is a matrix-valued kernel.
-    If $\tilde{k}$ is universal (e.g., if $\tilde{k}$ is a Gaussian or
-    Laplacian kernel), then $k$ is universal if and only if $M$ is
-    positive definite.
+    to estimate them due to \cref{eq:skce}!
   }
 
   \posterbox[adjusted title={Is my model calibrated?}, colback=sandsvag]{name=statistics,column=7,span=4,below=top}{
