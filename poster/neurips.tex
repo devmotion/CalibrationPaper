@@ -158,7 +158,7 @@
 % metadata
 \title{Calibration tests in multi-class classification:\\ A unifying framework}
 \author{David Widmann$^\star$ Fredrik Lindsten$^\ddagger$ Dave Zachariah$^\star$}
-\date{\today}
+\date{}
 \makeatletter
 \pgfkeys{%
   /my poster/.cd,
@@ -484,6 +484,13 @@
       \end{center}
     \end{minipage}
 
+    \vspace{\baselineskip}
+
+    We see that the standard estimator of the $\ECE$ exhibits both
+    negative and positive bias, whereas, theoretically guaranteed,
+    $\biasedestimator$ is biased upwards and $\unbiasedestimator$
+    and $\linearestimator$ are unbiased.
+
     \tcbsubtitle{Empirical test errors}
 
     \begin{minipage}[t]{0.4\linewidth}
@@ -494,20 +501,19 @@
       $\symbf{A}_{\mathup{l}}$ of the p-value based on the
       $\squaredkernelmeasure$. We compare them with a previously
       proposed hypothesis test for the standard $\ECE$ estimator
-      ($\symbf{C}$).
+      ($\symbf{C}$). We show the empirical test errors computed
+      from the p-value approximations for different significance
+      levels.
 
       \vspace{\baselineskip}
 
-      For a chosen significance level $\alpha$ we compute from the
-      p-value approximations $p_1,\ldots,p_{10^4}$ the empirical test
-      error
-      \begin{equation*}
-        \frac{1}{10^4} \sum_{i=1}^{10^4} \mathbb{1}_{[0, \alpha]}(p_i) \quad \text{ (for } \symbf{M1} \text{)}
-      \end{equation*}
-      and
-      \begin{equation*}
-        \frac{1}{10^4} \sum_{i=1}^{10^4} \mathbb{1}_{(\alpha, 1]}(p_i) \quad \text{ (for } \symbf{M2} \text{ and } \symbf{M3} \text{)}.
-      \end{equation*}
+      We see that consistency resampling can lead to unreliable
+      calibration tests. Bounds $\symbf{D}_{\mathup{b}}$,
+      $\symbf{D}_{\mathup{uq}}$, and $\symbf{D}_{\mathup{ul}}$ yield
+      reliable but usually not powerful tests, whereas
+      based on approximations $\symbf{A}_{\mathup{uq}}$ and
+      $\symbf{A}_{\mathup{l}}$ we obtain reliable and powerful
+      calibration tests in our experiments.
     \end{minipage}%
     \begin{minipage}[t]{0.6\linewidth}
       \vspace*{0pt}

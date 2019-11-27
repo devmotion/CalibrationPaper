@@ -121,7 +121,7 @@ function pvalues_comparison()
         grid = "major",
         title_style = { align = "center" },
         width = raw"0.325\linewidth",
-        height = raw"0.26\linewidth",
+        height = raw"0.25\linewidth",
         "every x tick scale label/.style" = {at = "{(1,0)}", anchor = "west"},
         ylabel_style = { font = raw"\small" },
         xmin = 0, xmax = 1, ymin=-0.1, ymax=1.1
