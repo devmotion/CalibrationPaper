@@ -172,7 +172,7 @@
 
 \pgfkeys{%
   /my poster/.cd,
-  institute={$^\star$Department of Information Technology, Uppsala University $^\ddagger$Division of Statistics and Machine Learning, Linköping University},
+  institute={$^\star$Department of Information Technology, Uppsala University, Sweden $^\ddagger$Division of Statistics and Machine Learning, Linköping University, Sweden},
   contact={david.widmann@it.uu.se fredrik.lindsten@liu.se dave.zachariah@it.uu.se},
 }
 
@@ -182,10 +182,11 @@
 \begin{tcbposter}
 
   % title
-  \posterbox[blankest,interior engine=path,halign=left,valign=center,right=4cm,
+  \posterbox[blankest,interior engine=path,halign=left,valign=top,
   underlay =
   {%
-    \node[left,inner sep=0pt,outer sep=0pt,align=center] at (frame.east) {\includegraphics[width=2cm]{figures/logos/UU.pdf}\\[1ex]\includegraphics[width=3cm]{figures/logos/LiU.pdf}};%
+    \node[below left,inner sep=0pt,outer sep=0pt] (LiU) at (frame.north east) {\includegraphics[width=3.5cm]{figures/logos/LiU.pdf}};%
+    \node[inner sep=0pt,outer sep=0pt,below left=0mm and 5mm of LiU.north west] (UU) {\includegraphics[width=2.5cm]{figures/logos/UU.pdf}};%
   }]{name=title,column=1,span=6,below=top}{%
     \Huge\textbf{\pgfkeysvalueof{/my poster/title}}\\[1ex]
     \large\pgfkeysvalueof{/my poster/author}\\[1ex]
@@ -356,7 +357,6 @@
     \begin{tcolorbox}[colback=blondstark]
       If $\Expect[\|k(g(X),g(X))\|] < \infty$, then \hl{consistent estimators}
       of the $\squaredkernelmeasure$ are:
-     are:
       \begin{center}
         \begin{tabular}{llll} \toprule
           Notation & Definition & Properties & Complexity\\ \midrule
