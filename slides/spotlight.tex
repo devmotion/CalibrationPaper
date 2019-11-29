@@ -4,7 +4,7 @@
 % arara: lualatex: { shell: true }
 \PassOptionsToPackage{force}{filehook} % see https://tex.stackexchange.com/questions/513051/filehook-error-with-memoir-after-update-texlive-2019-in-oct-15
 \documentclass[aspectratio=169]{beamer}
-% \documentclass[handout]{beamer} % for handouts
+% \documentclass[aspectratio=169,handout]{beamer} % for handouts
 
 % Plots
 \usepackage{pgfplots}
@@ -90,7 +90,7 @@
 {\end{tcolorbox}}
 
 % References
-\usepackage[style=authoryear-icomp,doi=false,url=false,isbn=false]{biblatex}
+\usepackage[style=authortitle-icomp,doi=false,url=false,isbn=false]{biblatex}
 \addbibresource{references.bib}
 
 \newenvironment{refitemize}%
@@ -122,7 +122,7 @@
 		\node[right,inner sep=0pt,outer sep=0pt, right=2mm of UU]  (LiU) {\includegraphics[height=0.75cm]{figures/logos/LiU.pdf}};
 	\end{tikzpicture}%
 }
-\institute{$^\star$Department of Information Technology, Uppsala University\\$^\ddagger$Division of Statistics and Machine Learning, Linköping University}
+\institute{$^\star$Department of Information Technology, Uppsala University, Sweden\\$^\ddagger$Division of Statistics and Machine Learning, Linköping University, Sweden}
 
 \begin{document}
 
@@ -219,14 +219,12 @@
 
 \begin{frame}{Calibrated model}
   \begin{tcbraster}[raster columns=2,raster equal height=rows]
-    \onslide<2->{%
-      \begin{uugreenbox}[raster multicolumn=2]
-        \begin{center}
-          A \hl{calibrated model} reports\\
-          \hl{predictions consistent with empirically observed frequencies} of outcomes.
-        \end{center}
-      \end{uugreenbox}
-    }%
+    \begin{uugreenbox}[raster multicolumn=2]
+      \begin{center}
+        A \hl{calibrated model} reports\\
+        \hl{predictions consistent with empirically observed frequencies} of outcomes.
+      \end{center}
+    \end{uugreenbox}
 		\begin{uuyellowbox}[enhanced, title={Prediction}, valign=center, remember as=A]
       \begin{center}
         \begin{tabular}{@{}cc@{}} \toprule
@@ -246,20 +244,21 @@
     \end{uubluebox}
   \end{tcbraster}
 
-  \onslide<2->{%
-    \begin{tikzpicture}[remember picture, overlay]
-      \path (A) -- node [font=\boldmath\Huge, color=uured, align=center, midway] {$\stackrel{?}{=}$} (B);
-    \end{tikzpicture}
-  }%
+  \begin{tikzpicture}[remember picture, overlay]
+    \path (A) -- node [font=\boldmath\Huge, color=uured, align=center, midway] {$\stackrel{?}{=}$} (B);
+  \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{Multi-class classification}
+\begin{frame}{Multi-class classification: all scores matter!}
   \begin{tcbraster}[raster columns=1]
     \begin{tcolorbox}[blankest]
       \begin{center}
         \begin{tikzpicture}
-          \node[draw, inner sep=2mm] (image) at (0, 0)
-          {\includesvg[height=\dimexpr0.11\textwidth-4mm\relax]{car}};
+          \node[minimum height=0.11\textwidth, inner sep=2mm] (image) at (0, 0)
+          {\begin{tabular}{@{}ccc@{}}
+             \includesvg[height=3mm]{car0} & \includesvg[height=3mm]{car1} & \includesvg[height=3mm]{car2} \\
+             \includesvg[height=3mm]{car3} & \includesvg[height=3mm]{car4} & $\cdots$ \\
+           \end{tabular}};
 
           \onslide<2->{%
             \node[draw, fill=gronskasvag, right=1cm of image, inner sep=2mm] (model)
@@ -279,72 +278,54 @@
      \end{center}
    \end{tcolorbox}
    \onslide<4->{%
-     \begin{uuyellowbox}[enhanced, title={Reduction to binary classification}, fontupper=\footnotesize, fontlower=\footnotesize, sidebyside, lower separated=false, remember as=A]
+     \begin{uubluebox}
+       \begin{center}
+         Common calibration evaluation techniques consider only the
+         most-confident score
+       \end{center}
+     \end{uubluebox}
+   }%
+   \onslide<5->{%
+     \begin{uuredbox}[enhanced, fontlower=\footnotesize, sidebyside, lower separated=false, righthand width=0.3\textwidth]
+       Common approaches do not distinguish between the two predictions
+       even though the control actions based on these might be very
+       different!
+
+       \tcblower
+
        \begin{center}
          \begin{tabular}{@{}ccc@{}} \toprule
            \texttt{object} & \texttt{human} & \texttt{animal} \\ \midrule
            \hl{80\%} & 0\% & 20\% \\
-           10\% & \hl{80\%} & 10\% \\
-           $\vdots$ & $\vdots$ & $\vdots$ \\ \bottomrule
+           \hl{80\%} & 20\% & 0\% \\ \bottomrule
          \end{tabular}
        \end{center}
-       \onslide<5->{%
-         \tcblower
-         \begin{center}
-           \begin{tabular}{@{}ccc@{}} \toprule
-             \texttt{object} & \texttt{human} & \texttt{animal} \\ \midrule
-             \hl{80\%} & 0\% & 20\% \\
-             \hl{80\%} & 10\% & 10\% \\
-             $\vdots$ & $\vdots$ & $\vdots$ \\ \bottomrule
-           \end{tabular}
-         \end{center}
-       }%
-     \end{uuyellowbox}
+     \end{uuredbox}
    }%
    \begin{tcolorbox}[blankest]
      \begin{refitemize}
        \refitem{vaicenavicius19_evaluat}
-       \onslide<4->{\refitem{guo17_calib_moder_neural_networ}}
      \end{refitemize}
    \end{tcolorbox}
  \end{tcbraster}
-
- \onslide<6->{%
-   \begin{tikzpicture}[remember picture, overlay]
-     \node at (A) {%
-       \begin{uuredbox}[width=0.5\pagewidth, nobeforeafter]
-         \begin{center}
-           Often \hl{partial calibration} is \hl{not enough}!
-         \end{center}
-       \end{uuredbox}%
-     };
-   \end{tikzpicture}
- }%
 \end{frame}
 
 \begin{frame}{Our contribution: Calibration errors in multi-class classification}
   \begin{tcbraster}[raster columns=1, raster rows=3]
-    \begin{uuyellowbox}[title={Unified framework}, left=0pt]
+    \begin{uuyellowbox}[title={Unifying framework of calibration errors}, left=0pt]
       \begin{itemize}
-      \item Encompasses existing measures such as the
+      \item Based on the full predictions with all scores
+      \item<2-> Encompasses existing measures such as the
         expected calibration error ($\mathrm{ECE}$)
-      \item<2-> Enables derivation of a \hl{kernel calibration error ($\mathrm{KCE}$)}
+      \item<3-> Enables derivation of a \hl{kernel calibration error ($\mathrm{KCE}$)}
       \end{itemize}
     \end{uuyellowbox}
-
-    \onslide<3->{%
-      \begin{tcolorbox}[blank]
-        The standard $\mathrm{ECE}$ estimator is usually biased and inconsistent:
-        \begin{center}
-          \input{figures/errors_ece.tex}
-        \end{center}
-      \end{tcolorbox}
-    }%
     \onslide<4->{%
-      \begin{uugreenbox}
-        \begin{center}
-          The $\mathrm{KCE}$ yields \hl{unbiased} and \hl{consistent} estimators
-        \end{center}
+      \begin{uugreenbox}[left=0pt, title={Estimating calibration errors}]
+        \begin{itemize}
+        \item The standard $\mathrm{ECE}$ estimator is usually biased and inconsistent
+        \item<5-> The $\mathrm{KCE}$ yields \hl{unbiased} and \hl{consistent} estimators
+        \end{itemize}
       \end{uugreenbox}
     }%
   \end{tcbraster}
@@ -421,7 +402,8 @@
       \onslide<7->{%
         \begin{uugreenbox}[left=0pt]
           \begin{itemize}
-          \item Existing approach for estimating the p-value for the $\mathrm{ECE}$ seems unreliable
+          \item Existing $\mathrm{ECE}$-based approach seems prone to
+            underestimating the p-value
           \item<8-> \hl{Well-founded bounds and approximations} of the p-value for the $\mathrm{KCE}$
           \end{itemize}
         \end{uugreenbox}
