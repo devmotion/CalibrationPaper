@@ -1,0 +1,155 @@
+% arara: lualatex: { shell: true }
+% arara: lualatex: { shell: true }
+% arara: lualatex: { shell: true, synctex: true }
+
+% A2  : 420 x 594 mm    |
+% 2A0 : 1189 x 1682 mm  > Factor 2.83 => 11pt ~ 31 pt
+% 1m  : 1000 x 1414     > Factor 2.38 => 12pt ~ 28 pt
+
+% A3  : 297 x 420 mm    |
+% 2A0 : 1189 x 1682 mm  > Factor 4 => 11pt ~ 44 pt
+% 1m  : 1000 x 1414     > Factor 3.36 => 10pt ~ 34 pt
+\PassOptionsToPackage{force}{filehook} % see https://tex.stackexchange.com/questions/513051/filehook-error-with-memoir-after-update-texlive-2019-in-oct-15
+\documentclass[10pt]{article}
+
+\usepackage{luatex85}
+
+% layout
+\usepackage[a6paper,landscape]{geometry}
+
+% math support
+\usepackage{mathtools,amssymb}
+
+% fonts
+\RequirePackage[factor=0]{microtype} % no protrusion
+\usepackage{unicode-math}
+\defaultfontfeatures{Ligatures=TeX}
+\IfFileExists{fonts/Berling.otf}{%
+  % load fonts of official UU design
+  \setmainfont{Berling}[%
+  Path=./fonts/,
+  Extension=.otf,
+  BoldFont=*-Bold,
+  ItalicFont=*-Italic,
+  BoldItalicFont=*-BoldItalic]
+}{%
+  \setmainfont{Libertinus Serif}
+}
+\setsansfont{Libertinus Sans}
+\setmonofont{Libertinus Mono}
+\setmathfont{Libertinus Math}
+
+% for the Github logo
+\usepackage{fontawesome}
+
+% language support
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\usepackage{csquotes}
+
+% colors
+\usepackage[CMYK]{xcolor}
+\usepackage{UUcolorPantone}
+
+\newcommand{\hl}[1]{\begingroup\bfseries\boldmath\color{uured}#1\endgroup}
+
+% URL
+\usepackage{url}
+
+% QR codes
+\usepackage{qrcode}
+
+% graphics
+\usepackage{graphicx}
+
+% boxes
+\usepackage[poster,xparse,raster]{tcolorbox}
+
+% poster settings
+\tcbposterset{
+  coverage =
+  {
+    spread,
+    interior style={color=white},
+  },
+  poster =
+  {
+    columns=1,
+    rows=1,
+  },
+  boxes =
+  {
+    enhanced standard jigsaw,
+    sharp corners=downhill,
+    arc=3pt,
+    boxrule=1pt,
+    lower separated=false,
+    % colors
+    coltext=black,
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    colbacktitle=uulightgrey,
+    % fonts
+    fonttitle=\bfseries\large,
+    % subtitles
+    subtitle style=
+    {
+      frame empty,
+      hbox,
+      rounded corners=east,
+      arc=8pt,
+      coltext=white!50!uulightgrey,
+      colback=black!10!uudarkgrey,
+    },
+  }
+}
+
+\pagestyle{empty}
+
+\begin{document}
+\begin{tcbposter}
+  \posterbox[adjusted title={Additional resources}, colback=blondsvag]{name=calibration,column=1,span=1,between=top and bottom}{
+
+    \tcbsubtitle{Source code}
+
+    The Julia implementation of the experiments and the source code of the paper, poster,
+    and the spotlight presentation are available at:
+
+    \faGithub{} \url{https://github.com/devmotion/CalibrationPaper}\hfill\qrcode[height=1.5cm]{https://github.com/devmotion/CalibrationPaper}
+
+    \tcbsubtitle{Julia packages}
+
+    We have published the following Julia packages for calibration evaluation:
+
+    \vspace*{\baselineskip}
+
+    \begin{minipage}[t]{0.3\textwidth}
+      \begin{center}
+        \scriptsize{\texttt{ConsistencyResampling.jl}}\\ \medskip
+        \qrcode[height=1cm]{https://github.com/devmotion/ConsistencyResampling.jl}
+      \end{center}
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{0.3\textwidth}
+      \begin{center}
+        \scriptsize{\texttt{CalibrationErrors.jl}}\\ \medskip
+        \qrcode[height=1cm]{https://github.com/devmotion/CalibrationErrors.jl}
+      \end{center}
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{0.3\textwidth}
+      \begin{center}
+        \scriptsize{\texttt{CalibrationTests.jl}}\\ \medskip
+        \qrcode[height=1cm]{https://github.com/devmotion/CalibrationTests.jl}
+      \end{center}
+    \end{minipage}
+
+    \vspace*{\baselineskip}
+
+    These packages allow users to perform \hl{consistency resampling},
+    estimate \hl{calibration errors}, and conduct \hl{calibration tests} for their
+    classification models.
+  }
+\end{tcbposter}
+\end{document}
