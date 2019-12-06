@@ -35,7 +35,7 @@ version of LuaLaTeX (the problem is explained in a
 [question on StackExchange](https://tex.stackexchange.com/questions/430837/why-does-lualatex-have-problem-with-a-ttf-that-xelatex-accepts/430872#comment1161846_430837).
 However, suitable OTF fonts can be generated from these files according
 to the
-[instructions provided on StackExchange]((https://tex.stackexchange.com/a/430872).
+[instructions provided on StackExchange](https://tex.stackexchange.com/a/430872).
 
 ## Compile the poster
 
