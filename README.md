@@ -1,8 +1,8 @@
 # CalibrationPaper
 
-This repository accompanies the paper "Calibration tests in multi-class
-classification: A unifying framework" by Widmann, Lindsten, and Zachariah,
-which is going to be presented at NeurIPS 2019.
+This repository accompanies the paper ["Calibration tests in multi-class
+classification: A unifying framework" by Widmann, Lindsten, and Zachariah](http://papers.nips.cc/paper/9392-calibration-tests-in-multi-class-classification-a-unifying-framework),
+which was presented at NeurIPS 2019.
 
 ## Structure
 
