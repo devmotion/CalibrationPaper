@@ -27,9 +27,10 @@ You can regenerate the figures in the paper with the following commands:
 | 1 | `errors_comparison()` |
 | 2 | `pvalues_comparison()` |
 | 3-34 | `errors()` |
-| 35 | `cifar10_errors_comparison()` |
-| 36 | `cifar10_pvalues_comparison()` |
-| 37 | `timings()` |
+| 35-82| `pvalues()` |
+| 83 | `cifar10_errors_comparison()` |
+| 84 | `cifar10_pvalues_comparison()` |
+| 85 | `timings()` |
 
 ## Compile the paper
 

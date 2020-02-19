@@ -111,7 +111,7 @@
 \newcommand{\errors}[2]{%
 \begin{figure}[!htbp]
   \begin{center}
-    \tikzsetnextfilename{#1_alpha_i=1.0_only_firstclass=false}
+    \tikzsetnextfilename{errors_#1_alpha_i=1.0_only_firstclass=false}
     \input{figures/errors/#1_alpha_i=1.0_only_firstclass=false.tex}
     \caption{Distribution of #2, evaluated on $10^4$ data sets of 250 labeled
       predictions that are randomly sampled from generative models with
@@ -121,7 +121,7 @@
 
 \begin{figure}[!htbp]
   \begin{center}
-    \tikzsetnextfilename{#1_alpha_i=0.1_only_firstclass=false}
+    \tikzsetnextfilename{errors_#1_alpha_i=0.1_only_firstclass=false}
     \input{figures/errors/#1_alpha_i=0.1_only_firstclass=false.tex}
     \caption{Distribution of #2, evaluated on $10^4$ data sets of 250 labeled
       predictions that are randomly sampled from generative models with
@@ -131,7 +131,7 @@
 
 \begin{figure}[!htbp]
   \begin{center}
-    \tikzsetnextfilename{#1_alpha_i=1.0_only_firstclass=true}
+    \tikzsetnextfilename{errors_#1_alpha_i=1.0_only_firstclass=true}
     \input{figures/errors/#1_alpha_i=1.0_only_firstclass=true.tex}
     \caption{Distribution of #2, evaluated on $10^4$ data sets of 250 labeled
       predictions that are randomly sampled from generative models with
@@ -141,10 +141,56 @@
 
 \begin{figure}[!htbp]
   \begin{center}
-    \tikzsetnextfilename{#1_alpha_i=0.1_only_firstclass=true}
+    \tikzsetnextfilename{errors_#1_alpha_i=0.1_only_firstclass=true}
     \input{figures/errors/#1_alpha_i=0.1_only_firstclass=true.tex}
     \caption{Distribution of #2, evaluated on $10^4$ data sets of 250 labeled
       predictions that are randomly sampled from generative models with
+      $\alpha = (0.1,\ldots,0.1)$ and $\beta = (1, 0, \ldots, 0)$.}
+  \end{center}
+\end{figure}%
+}
+
+\newcommand{\pvalues}[2]{%
+\begin{figure}[!htbp]
+  \begin{center}
+    \tikzsetnextfilename{pvalues_#1_alpha_i=1.0_only_firstclass=false}
+    \input{figures/pvalues/#1_alpha_i=1.0_only_firstclass=false.tex}
+    \caption{Empirical test error versus significance level for #2,
+      evaluated on $10^4$ data sets of 250 labeled predictions that
+      are randomly sampled from generative models with
+      $\alpha = (1,\ldots,1)$ and $\beta = (1/m, \ldots, 1/m)$.}
+  \end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \tikzsetnextfilename{pvalues_#1_alpha_i=0.1_only_firstclass=false}
+    \input{figures/pvalues/#1_alpha_i=0.1_only_firstclass=false.tex}
+    \caption{Empirical test error versus significance level for #2,
+      evaluated on $10^4$ data sets of 250 labeled predictions that
+      are randomly sampled from generative models with
+      $\alpha = (0.1,\ldots,0.1)$ and $\beta = (1/m, \ldots, 1/m)$.}
+  \end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \tikzsetnextfilename{pvalues_#1_alpha_i=1.0_only_firstclass=true}
+    \input{figures/pvalues/#1_alpha_i=1.0_only_firstclass=true.tex}
+    \caption{Empirical test error versus significance level for #2,
+      evaluated on $10^4$ data sets of 250 labeled predictions that
+      are randomly sampled from generative models with
+      $\alpha = (1,\ldots,1)$ and $\beta = (1, 0,\ldots, 0)$.}
+  \end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \tikzsetnextfilename{pvalues_#1_alpha_i=0.1_only_firstclass=true}
+    \input{figures/pvalues/#1_alpha_i=0.1_only_firstclass=true.tex}
+    \caption{Empirical test error versus significance level for #2,
+      evaluated on $10^4$ data sets of 250 labeled predictions that
+      are randomly sampled from generative models with
       $\alpha = (0.1,\ldots,0.1)$ and $\beta = (1, 0, \ldots, 0)$.}
   \end{center}
 \end{figure}%
@@ -689,11 +735,8 @@ $10^4$ randomly sampled data sets from each of the three models. The true
 calibration error of these models, indicated by a dashed line, is calculated
 theoretically for the $\ECE$ (see~\cref{sec:theoretical_ece}) and empirically
 for the $\squaredkernelmeasure$ using the sample mean of all unbiased estimates
-of $\unbiasedestimator$.
-
-We see that the standard estimator of the $\ECE$ exhibits both negative and
-positive bias, whereas $\biasedestimator$ is theoretically guaranteed to be
-biased upwards. The results also confirm the unbiasedness of $\linearestimator$.
+of $\unbiasedestimator$. The results confirm the unbiasedness of
+$\linearestimator$.
 
 \begin{figure}[!htbp]
   \begin{center}
@@ -764,14 +807,20 @@ standard $\ECE$ estimator unreliable.
 
 \subsection{Additional experiments}
 
-In \cref{sec:additional_estimates} we provide additional results for varying
+In \cref{sec:additional_estimates} we provide results for varying
 number of classes and a non-standard $\ECE$ estimator with data-dependent bins.
-We observe that the bias of $\widehat{\ECE}$ becomes more prominent with
-increasing number of classes, showing high calibration error estimates even for
-calibrated models. The estimators of the $\squaredkernelmeasure$ are not
-affected by the number of classes in the same way. In some experiments with 100
-and 1000 classes, however, the distribution of $\linearestimator$ shows
-multi-modality.
+We observe negative and positive bias for both $\ECE$ estimators, whereas
+$\biasedestimator$ is guaranteed to be biased upwards. The bias of $\widehat{\ECE}$
+becomes more prominent with increasing number of classes, showing high calibration
+error estimates even for calibrated models. The $\squaredkernelmeasure$
+estimators are not affected by the number of classes in the same way. In some
+experiments with 100 and 1000 classes, however, the distribution of
+$\linearestimator$ shows multi-modality.
+
+The empirical evaluations in \cref{sec:additional_tests} indicate
+that the reliability of the p-value approximations based on $\widehat{\ECE}$
+decreases with increasing number of classes, both for the estimator with bins
+of uniform size and, to a smaller extent, for the estimator with data-dependent bins.
 
 The considered calibration measures depend only on the predictions and the
 true labels, not on how these predictions are computed. Hence directly
@@ -2129,7 +2178,7 @@ is reduced to the most confident predictions.
 The Julia implementation for all experiments is available online at
 \url{https://github.com/devmotion/CalibrationPaper}. The code is written and
 documented with the literate programming tool
-\href{https://github.com/JunoLab/Weave.jl}{Weave.jl}~\cite{pastell17_weave}
+\href{https://github.com/JunoLab/Weave.jl}{Weave.jl}~\citep{pastell17_weave}
 and exported to HTML files that include results and figures.
 
 \subsection{Calibration errors}
@@ -2149,7 +2198,7 @@ we use two different partitioning schemes. The first scheme is the commonly
 used partitioning into bins of uniform size, based on splitting the predictions
 of each class into 10 bins. The other partitioning is data-dependent: the data
 set is split iteratively along the median of the class predictions with the
-highest variance as long as the number of samples in a bin is at least 10.
+highest variance such that the number of samples in each bin is at least 5.
 
 \subsubsection{Kernel calibration error}
 
@@ -2257,7 +2306,8 @@ experiments in which we set the kernel bandwidth to the mean total variation
 distance.
 
 \clearpage
-\subsubsection{Distribution of estimates: Additional figures}\label{sec:additional_estimates}
+
+\subsubsection{Calibration error estimates: Additional figures}\label{sec:additional_estimates}
 
 \errors{ECE_uniform}{$\widehat{\ECE}$ with bins of uniform size}
 
@@ -2274,6 +2324,46 @@ distance.
 \errors{SKCEul_median}{$\linearestimator$ with the median heuristic}
 
 \errors{SKCEul_mean}{$\linearestimator$ with the mean total variation distance}
+
+\clearpage
+
+\subsubsection{Calibration tests: Additional figures}\label{sec:additional_tests}
+
+\pvalues{ECE_uniform}{approximations of the p-value with consistency resampling based
+on $\widehat{\ECE}$ with bins of uniform size}
+
+\pvalues{ECE_dynamic}{approximations of the p-value with consistency resampling based
+on $\widehat{\ECE}$ with data-dependent bins}
+
+\pvalues{SKCEb_median_distribution_free}{distribution-free bounds of the p-value based
+on $\biasedestimator$ with the median heuristic}
+
+\pvalues{SKCEb_mean_distribution_free}{distribution-free bounds of the p-value based
+on $\biasedestimator$ with the mean total variation distance}
+
+\pvalues{SKCEuq_median_distribution_free}{distribution-free bounds of the p-value based
+on $\unbiasedestimator$ with the median heuristic}
+
+\pvalues{SKCEuq_mean_distribution_free}{distribution-free bounds of the p-value based
+on $\unbiasedestimator$ with the mean total variation distance}
+
+\pvalues{SKCEul_median_distribution_free}{distribution-free bounds of the p-value based
+on $\linearestimator$ with the median heuristic}
+
+\pvalues{SKCEul_mean_distribution_free}{distribution-free bounds of the p-value based
+on $\linearestimator$ with the mean total variation distance}
+
+\pvalues{SKCEuq_median_asymptotic}{asymptotic approximations of the p-value based on
+$\unbiasedestimator$ with the median heuristic}
+
+\pvalues{SKCEuq_mean_asymptotic}{asymptotic approximations of the p-value based on
+$\unbiasedestimator$ with the mean total variation distance}
+
+\pvalues{SKCEul_median_asymptotic}{asymptotic approximations of the p-value based on
+$\linearestimator$ with the median heuristic}
+
+\pvalues{SKCEul_mean_asymptotic}{asymptotic approximations of the p-value based on
+$\linearestimator$ with the mean total variation distance}
 
 \clearpage
 \subsection{Modern neural networks}\label{sec:neural_networks}
@@ -2293,9 +2383,9 @@ That being said, we recognize that this approach might result in an unnecessary
 disconnect between the results of the paper and a practical use case. We
 therefore conduct additional evaluations with different modern neural networks as
 well. We consider pretrained ResNet, DenseNet, VGGNet, GoogLeNet, MobileNet, and
-Inception neural networks~\cite{phan19_pytor_cifar} for the classification of the
+Inception neural networks~\citep{phan19_pytor_cifar} for the classification of the
 CIFAR-10 image data
-set~\cite{krizhevsky09_learn_multip_layer_featur_from_tiny_images}. The CIFAR-10
+set~\citep{krizhevsky09_learn_multip_layer_featur_from_tiny_images}. The CIFAR-10
 data set is a labeled data set of $32 \times 32$ colour images and consists of
 50000 training and 10000 test images in 10 classes. The calibration of the
 neural network models is estimated from their predictions on the CIFAR-10 test
@@ -2345,8 +2435,7 @@ and approximate the p-value using the asymptotic distribution of the estimators
 $\unbiasedestimator$ ($\mathbf{A}_{\mathrm{uq}}$) and $\linearestimator$
 ($\mathbf{A}_{\mathrm{l}}$). The results are shown in \cref{fig:cifar10_pvalues}.
 
-The approximations obtained by consistency resampling are almost always zero,
-apart from GoogLeNet for the $\ECE$ estimator with partitions of uniform size.
+The approximations obtained by consistency resampling are always zero.
 However, since our controlled experiments with the generative models showed that
 consistency resampling might underestimate the p-value of calibrated
 models on average, these approximations could be misleading. On the contrary, the
@@ -2382,13 +2471,11 @@ precision diagrams for numerical differential equation solvers.
 
 A simple comparison of the computational time for the calibration error
 estimators used in the experiments with the generative models in
-\cref{sec:generative_models} on our computer (3.6 GHz) shows the expected
+\cref{sec:generative_models} on our computer (3.6~GHz) shows the expected
 scaling of the computational time with increasing number of samples. As
 \cref{fig:timings} shows, even for 1000 samples and 1000 classes the estimators
 $\biasedestimator$ and $\unbiasedestimator$ with the median heuristic can be
-evaluated in around 0.1 seconds. Moreover, the simple benchmark indicates that
-the evaluation of the estimator of the $\ECE$ with data-dependent bins is much
-slower than of the one with partitions of uniform size.
+evaluated in around 0.1~seconds.
 
 \begin{figure}[!htbp]
   \begin{center}
