@@ -101,19 +101,18 @@ end
     # define the samplers of predictions and labels
     prediction_gamma_sampler = sampler(Gamma(model.αᵢ))
     if !only_firstclass
-        label_sampler = Random.Sampler(rng, Base.OneTo(m))
+        label_sampler = Random.Sampler(rng, 1:m)
     end
 
     # define the caches for predictions and labels
-    predictions = Matrix{Float64}(undef, m, 250)
+    predictions = [Vector{Float64}(undef, m) for _ in 1:250]
     labels = Vector{Int}(undef, 250)
-    data = (predictions, labels)
 
     for i in 1:length(estimates)
         # sample the predictions
-        rand!(rng, prediction_gamma_sampler, predictions)
-        for c in eachcol(predictions)
-            ldiv!(sum(c), c)
+        for prediction in predictions
+            rand!(rng, prediction_gamma_sampler, prediction)
+            ldiv!(sum(prediction), prediction)
         end
 
         # sample the labels
@@ -125,15 +124,15 @@ end
                     labels[j] = rand(rng, label_sampler)
                 end
             else
-                labels[j] = sample(rng, Weights(view(predictions, :, j), 1))
+                labels[j] = sample(rng, Weights(predictions[j]))
             end
         end
 
         # evaluate the estimator
         if estimator isa CalibrationErrors.CalibrationErrorEstimator
-            @inbounds estimates[i] = calibrationerror(estimator, data)
+            @inbounds estimates[i] = calibrationerror(estimator, predictions, labels)
         else
-            @inbounds estimates[i] = calibrationerror(estimator(predictions), data)
+            @inbounds estimates[i] = calibrationerror(estimator(predictions), predictions, labels)
         end
 
         # update channel
@@ -329,11 +328,11 @@ cegrid("ECE_uniform"; αᵢ = 0.1, only_firstclass = true)
 #' median of the classes with the highest variance, as long as the number of bins
 #' does not exceed a given threshold and the number of samples per bin is above
 #' a certain lower bound. In our experiments we do not impose any restriction on
-#' the number of bins but only stop splitting if the number of samples is less
-#' than 10.
+#' the number of bins but only force the number of samples in each bin to be
+#' greater or equal than 5.
 
 perform("ECE_dynamic") do model
-    ECE(MedianVarianceBinning(10))
+    ECE(MedianVarianceBinning(5))
 end
 
 #' #### Uniform predictions and uniform labels

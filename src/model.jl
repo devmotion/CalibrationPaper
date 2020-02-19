@@ -44,7 +44,7 @@ function analytic_ece(model::CalibrationPaperModel)
         model.π * (m - 1) * inv(m)
     else
         αᵢ = model.αᵢ
-        model.π * inv(αᵢ) * exp(αᵢ * (xlogx(m - 1) - xlogx(m)) - lbeta(αᵢ, (m - 1) * αᵢ))
+        model.π * inv(αᵢ) * exp(αᵢ * (xlogx(m - 1) - xlogx(m)) - logabsbeta(αᵢ, (m - 1) * αᵢ)[1])
     end
 end
 

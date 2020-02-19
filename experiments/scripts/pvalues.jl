@@ -12,7 +12,7 @@
 #'    Z &\sim \mathrm{Ber}(\pi),\\
 #'    Y \,|\, g(X) = \gamma, Z = 1 &\sim \mathrm{Cat}(\beta),\\
 #'    Y \,|\, g(X) = \gamma, Z = 0 &\sim \mathrm{Cat}(\gamma),
-#' \end{align*}
+#' \end{aligned}
 #' ```
 #' where $\alpha \in \mathbb{R}_{>0}^m$ determines the distribution of predictions
 #' $g(X)$, $\pi > 0$ determines the degree of miscalibration, and $\beta$ defines
@@ -102,19 +102,18 @@ end
     # define the distributions of predictions and labels
     prediction_gamma_sampler = sampler(Gamma(model.αᵢ))
     if !only_firstclass
-        label_sampler = Random.Sampler(rng, Base.OneTo(m))
+        label_sampler = Random.Sampler(rng, 1:m)
     end
 
     # define the caches for predictions and labels
-    predictions = Matrix{Float64}(undef, m, 250)
+    predictions = [Vector{Float64}(undef, m) for _ in 1:250]
     labels = Vector{Int}(undef, 250)
-    data = (predictions, labels)
 
     for i in 1:length(estimates)
         # sample the predictions
-        rand!(rng, prediction_gamma_sampler, predictions)
-        for c in eachcol(predictions)
-            ldiv!(sum(c), c)
+        for prediction in predictions
+            rand!(rng, prediction_gamma_sampler, prediction)
+            ldiv!(sum(prediction), prediction)
         end
 
         # sample the labels
@@ -126,12 +125,12 @@ end
                     labels[j] = rand(rng, label_sampler)
                 end
             else
-                labels[j] = sample(rng, Weights(view(predictions, :, j), 1))
+                labels[j] = sample(rng, Weights(predictions[j], 1))
             end
         end
 
         # evaluate the estimator
-        @inbounds estimates[i] = pvalue(test(rng, data))
+        @inbounds estimates[i] = test(rng, predictions, labels)
 
         # update channel
         put!(channel, true)
@@ -140,7 +139,7 @@ end
     estimates
 end
 
-#' We run these experiments 10000 times for $m = 10$ classes,
+#' We run these experiments 10000 times for $m \in \{2, 10\}$ classes,
 #' $\alpha_i \in \{0.1, 1\}$, $\pi \in \{0, 0.5, 1\}$, and
 #' $\beta = (1, 0, \ldots, 0)$ and $\beta = (1/m, \ldots, 1/m)$.
 #' The results of each set of experiments is saved as a CSV file in the subdirectory
@@ -162,13 +161,13 @@ function perform(test, experiment; n::Int = 10_000)
     isdir(datadir) || mkpath(datadir)
 
     # define the investigated models
-    models = [CalibrationPaperModel(10, αᵢ, π, only_firstclass) for αᵢ in (0.1, 1.0),
-              π in 0:0.5:1, only_firstclass in (true, false)]
+    models = [CalibrationPaperModel(m, αᵢ, π, only_firstclass) for m in (2, 10),
+              αᵢ in (0.1, 1.0), π in 0:0.5:1, only_firstclass in (true, false)]
 
     # define the pool of workers, the progress bar, and its update channel
     wp = CachingPool(workers())
-    p = Progress(12 * n, 1, "running experiment $experiment...")
-    channel = RemoteChannel(() -> Channel{Bool}(12 * n))
+    p = Progress(24 * n, 1, "running experiment $experiment...")
+    channel = RemoteChannel(() -> Channel{Bool}(24 * n))
 
     local estimates
     @sync begin
@@ -203,7 +202,7 @@ function perform(test, experiment; n::Int = 10_000)
 
             # create data frame
             df = DataFrame(estimate = estimates[i],  m = model.m, αᵢ = model.αᵢ, π = model.π,
-                          only_firstclass = model.only_firstclass)
+                           only_firstclass = model.only_firstclass)
             # save it
             CSV.write(f, df; append = i > 1)
         end
@@ -219,7 +218,7 @@ end
 #' concretely, for a fixed set of significance levels $\alpha \in \{0, 1e-3, 2e-3, \ldots,
 #' 0.999, 1\}$, we compute the empirical approximations
 #' ```math
-#' \mathbb{P}[P \leq \alpha] \approx \frac{1}{N} \|\{ i \colon p_i < \alpha \}\| \eqqcolon f(\alpha),
+#' \mathbb{P}[P \leq \alpha] \approx \frac{1}{N} \|\{ i \colon p_i < \alpha \}\| =: f(\alpha),
 #' ```
 #' where $P$ is the studied p-value approximation (which is a data dependent random
 #' variable) and $p_1, \ldots, p_N$ are the empirically observed realizations of this
@@ -245,8 +244,8 @@ end
     only_firstclass = pop!(plotattributes, :only_firstclass)
 
     # default settings
-    layout := (1, 3)
-    size --> (864, 240)
+    layout := (2, 3)
+    size --> (864, 480)
     linewidth --> 2
     legend --> false
     xlabel --> "p-value approximation"
@@ -254,13 +253,13 @@ end
     seriestype --> :path
 
     # define studied models
-    models = [CalibrationPaperModel(10, αᵢ, π, only_firstclass) for π in 0:0.5:1]
+    models = [CalibrationPaperModel(m, αᵢ, π, only_firstclass) for π in 0:0.5:1, m in (2, 10)]
 
     # load estimates of p-value approximations
     file = joinpath(@__DIR__, "..", "data", "pvalues", "$experiment.csv")
     df = CSV.read(file)
 
-    αs = 0:0.001:1
+    αs = 0:0.01:1
     for (i, model) in enumerate(models)
         # select estimates of p-value approximations
         estimates = collect_estimates(df, model)
@@ -270,6 +269,7 @@ end
 
         # add next subplot
         subplot := i
+        title := "m = $(model.m), pi = $(model.π)"
 
         if iszero(model.π)
             # if the model is calibrated we plot the empirical type I error
@@ -304,7 +304,7 @@ end
 #' For our estimation we use 10 bins of uniform width in each dimension.
 
 perform("ECE_uniform") do model
-    (rng, x) -> ConsistencyTest(ECE(UniformBinning(10)), x; rng = rng)
+    (rng, predictions, labels) -> pvalue(ConsistencyTest(ECE(UniformBinning(10)), predictions, labels); rng = rng)
 end
 
 #' #### Uniform predictions and uniform labels
@@ -326,7 +326,7 @@ errorgrid("ECE_uniform"; αᵢ = 0.1, only_firstclass = true)
 #' ### Non-uniform binning
 
 perform("ECE_dynamic") do model
-    (rng, x) -> ConsistencyTest(ECE(MedianVarianceBinning(10)), x; rng = rng)
+    (rng, predictions, labels) -> pvalue(ConsistencyTest(ECE(MedianVarianceBinning(5)), predictions, labels); rng = rng)
 end
 
 #' #### Uniform predictions and uniform labels
@@ -352,7 +352,7 @@ errorgrid("ECE_dynamic"; αᵢ = 0.1, only_firstclass = true)
 #' First we try the median heuristic.
 
 perform("SKCEb_median_distribution_free") do model
-    (rng, x) -> DistributionFreeTest(BiasedSKCE(median_TV_kernel(x[1])), x)
+    (rng, predictions, labels) -> pvalue(DistributionFreeTest(BiasedSKCE(median_TV_kernel(predictions)), predictions, labels))
 end
 
 #' #### Uniform predictions and uniform labels
@@ -377,7 +377,7 @@ errorgrid("SKCEb_median_distribution_free"; αᵢ = 0.1, only_firstclass = true)
 
 perform("SKCEb_mean_distribution_free") do model
     let kernel = mean_TV_kernel(model)
-        (rng, x) -> DistributionFreeTest(BiasedSKCE(kernel), x)
+        (rng, predictions, labels) -> pvalue(DistributionFreeTest(BiasedSKCE(kernel), predictions, labels))
     end
 end
 
@@ -404,7 +404,7 @@ errorgrid("SKCEb_mean_distribution_free"; αᵢ = 0.1, only_firstclass = true)
 #' First we try the median heuristic.
 
 perform("SKCEuq_median_distribution_free") do model
-    (rng, x) -> DistributionFreeTest(QuadraticUnbiasedSKCE(median_TV_kernel(x[1])), x)
+    (rng, predictions, labels) -> pvalue(DistributionFreeTest(QuadraticUnbiasedSKCE(median_TV_kernel(predictions)), predictions, labels))
 end
 
 #' #### Uniform predictions and uniform labels
@@ -429,7 +429,7 @@ errorgrid("SKCEuq_median_distribution_free"; αᵢ = 0.1, only_firstclass = true
 
 perform("SKCEuq_mean_distribution_free") do model
     let kernel = mean_TV_kernel(model)
-        (rng, x) -> DistributionFreeTest(QuadraticUnbiasedSKCE(kernel), x)
+        (rng, predictions, labels) -> pvalue(DistributionFreeTest(QuadraticUnbiasedSKCE(kernel), predictions, labels))
     end
 end
 
@@ -456,7 +456,7 @@ errorgrid("SKCEuq_mean_distribution_free"; αᵢ = 0.1, only_firstclass = true)
 #' First we try the median heuristic.
 
 perform("SKCEul_median_distribution_free") do model
-    (rng, x) -> DistributionFreeTest(LinearUnbiasedSKCE(median_TV_kernel(x[1])), x)
+    (rng, predictions, labels) -> pvalue(DistributionFreeTest(LinearUnbiasedSKCE(median_TV_kernel(predictions)), predictions, labels))
 end
 
 #' #### Uniform predictions and uniform labels
@@ -481,7 +481,7 @@ errorgrid("SKCEul_median_distribution_free"; αᵢ = 0.1, only_firstclass = true
 
 perform("SKCEul_mean_distribution_free") do model
     let kernel = mean_TV_kernel(model)
-        (rng, x) -> DistributionFreeTest(LinearUnbiasedSKCE(kernel), x)
+        (rng, predictions, labels) -> pvalue(DistributionFreeTest(LinearUnbiasedSKCE(kernel), predictions, labels))
     end
 end
 
@@ -508,7 +508,7 @@ errorgrid("SKCEul_mean_distribution_free"; αᵢ = 0.1, only_firstclass = true)
 #' First we try the median heuristic.
 
 perform("SKCEul_median_asymptotic") do model
-    (rng, x) -> AsymptoticLinearTest(median_TV_kernel(x[1]), x)
+    (rng, predictions, labels) -> pvalue(AsymptoticLinearTest(median_TV_kernel(predictions), predictions, labels))
 end
 
 #' #### Uniform predictions and uniform labels
@@ -533,7 +533,7 @@ errorgrid("SKCEul_median_asymptotic"; αᵢ = 0.1, only_firstclass = true)
 
 perform("SKCEul_mean_asymptotic") do model
     let kernel = mean_TV_kernel(model)
-        (rng, x) -> AsymptoticLinearTest(kernel, x)
+        (rng, predictions, labels) -> pvalue(AsymptoticLinearTest(kernel, predictions, labels))
     end
 end
 
@@ -560,7 +560,7 @@ errorgrid("SKCEul_mean_asymptotic"; αᵢ = 0.1, only_firstclass = true)
 #' First we try the median heuristic.
 
 perform("SKCEuq_median_asymptotic") do model
-    (rng, x) -> AsymptoticQuadraticTest(median_TV_kernel(x[1]), x; rng = rng)
+    (rng, predictions, labels) -> pvalue(AsymptoticQuadraticTest(median_TV_kernel(predictions), predictions, labels); rng = rng)
 end
 
 #' #### Uniform predictions and uniform labels
@@ -585,7 +585,7 @@ errorgrid("SKCEuq_median_asymptotic"; αᵢ = 0.1, only_firstclass = true)
 
 perform("SKCEuq_mean_asymptotic") do model
     let kernel = mean_TV_kernel(model)
-        (rng, x) -> AsymptoticQuadraticTest(kernel, x; rng = rng)
+        (rng, predictions, labels) -> pvalue(AsymptoticQuadraticTest(kernel, predictions, labels); rng = rng)
     end
 end
 

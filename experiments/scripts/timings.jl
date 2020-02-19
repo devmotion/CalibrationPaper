@@ -16,7 +16,6 @@ using CSV
 using DataFrames
 using Plots
 using Query
-using StatsPlots
 
 using LinearAlgebra
 using Random
@@ -45,12 +44,11 @@ gr()
 
 function benchmark(estimator, nclasses::Int, nsamples::Int)
     # sample uniformly distributed predictions and labels
-    predictions = randexp(nclasses, nsamples)
-    for c in eachcol(predictions)
-        ldiv!(sum(c), c)
+    predictions = [randexp(nclasses) for _ in 1:nsamples]
+    for prediction in predictions
+        ldiv!(sum(prediction), prediction)
     end
     labels = rand(1:nclasses, nsamples)
-    data = (predictions, labels)
 
     # define estimator (can be data dependent)
     if estimator isa CalibrationErrors.CalibrationErrorEstimator
@@ -60,8 +58,8 @@ function benchmark(estimator, nclasses::Int, nsamples::Int)
     end
 
     # define function that measures the time of calibration estimation
-    f = let data = data, estimator = _estimator
-        i -> @elapsed calibrationerror(estimator, data)
+    f = let predictions = predictions, labels = labels, estimator = _estimator
+        i -> @elapsed calibrationerror(estimator, predictions, labels)
     end
 
     # compile function
@@ -81,7 +79,7 @@ function benchmark()
     isfile(file) && return
 
     # define estimators and labels
-    estimators = [ECE(UniformBinning(10)), ECE(MedianVarianceBinning(10)),
+    estimators = [ECE(UniformBinning(10)), ECE(MedianVarianceBinning(5)),
                     predictions -> BiasedSKCE(median_TV_kernel(predictions)),
                     predictions -> QuadraticUnbiasedSKCE(median_TV_kernel(predictions)),
                     predictions -> LinearUnbiasedSKCE(median_TV_kernel(predictions))]
@@ -89,7 +87,7 @@ function benchmark()
               "SKCEul_median"]
 
     # define number of samples
-    nsamples = round.(Int, 10 .^ LinRange(0, 3, 10))
+    nsamples = round.(Int, 10 .^ LinRange(1, 3, 10))
 
     # define number of classes
     nclasses = [2, 10, 100, 1_000]
@@ -120,14 +118,23 @@ benchmark()
 #' We plot the timings for each estimator, grouped by the number of classes.
 
 function plotbenchmark(nclasses)
+    # load and preprocess data
     df = CSV.read(joinpath(@__DIR__, "..", "data", "timings.csv"))
-
-    df |>
+    groups = df |>
         @filter(_.nclasses == nclasses) |>
-        @df plot(:nsamples, :time;
-                 group = :estimator, xscale = :log10, yscale = :log10, xguide = "time (s)",
-                 yguide = "number of samples", legend = :topleft, marker = :auto,
-                 title = "$nclasses classes")
+        @groupby(_.estimator) |>
+        @orderby(_.nsamples)
+
+    # plot the data in logarithmic scale
+    plt = plot(title = "$nclasses classes", xscale = :log10, yscale = :log10,
+               xlabel = "number of samples", ylabel = "time (s)", legend = :topleft)
+    for g in groups
+        estimator = first(g).estimator
+        plot!(plt, getfield.(g, :nsamples), getfield.(g, :time);
+             label = estimator, markershape = :auto)
+    end
+
+    plt
 end
 
 plotbenchmark(2)
