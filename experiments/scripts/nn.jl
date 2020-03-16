@@ -40,6 +40,7 @@ using Conda
 using CSV
 using DataDeps
 using DataFrames
+using ProgressMeter
 using PyCall
 
 using LibGit2
@@ -51,114 +52,118 @@ using LibGit2
 #' As a first step we download a set of pretrained neural networks for CIFAR-10 from
 #' [PyTorch-CIFAR10](https://github.com/huyvnphan/PyTorch-CIFAR10). We extract the
 #' predictions of these models on the validation data set together with the correct labels.
-#'
-#' We start by registering the required data. If you want to rerun this experiment from
+#' First we check if the predictions and labels are already extracted.
+
+# create directory for results
+const DATADIR = joinpath(@__DIR__, "..", "data", "PyTorch-CIFAR10")
+isdir(DATADIR) || mkpath(DATADIR)
+
+# check if predictions exist
+const ALL_MODELS = ["densenet121", "densenet161", "densenet169", "googlenet", "inception_v3",
+                    "mobilenet_v2", "resnet_orig", "resnet18", "resnet34", "resnet50",
+                    "vgg11_bn", "vgg13_bn", "vgg16_bn", "vgg19_bn"]
+const MISSING_MODELS = filter(ALL_MODELS) do name
+    !isfile(joinpath(DATADIR, "$name.csv"))
+end
+
+#' If the data does not exist, we start by loading all missing packages and
+#' registering the required data. If you want to rerun this experiment from
 #' scratch, please download the pretrained weights of the models.
 
-register(ManualDataDep(
-    "PyTorch-CIFAR10",
-    """
-    Please go to
-        https://drive.google.com/drive/folders/15jBlLkOFg0eK-pwsmXoSesNDyDb_HOeV
-    and download the pretrained weights.
-    Note that this must be done manually since Google requires to confirm the download of
-    large files and I have not automated the confirmation process (yet).
-    """
-))
+if !isempty(MISSING_MODELS) || !isfile(joinpath(DATADIR, "labels.csv"))   
+    # register the data source for the pretrained models
+    register(ManualDataDep(
+        "PyTorch-CIFAR10",
+        """
+        Please go to
+            https://drive.google.com/drive/folders/15jBlLkOFg0eK-pwsmXoSesNDyDb_HOeV
+        and download the pretrained weights.
+        Note that this must be done manually since Google requires to confirm the download of
+        large files and I have not automated the confirmation process (yet).
+        """
+    ))
 
-#' First we install PyTorch.
+    # install PyTorch
+    Conda.add("cpuonly=1.0"; channel = "pytorch")
+    Conda.add("pytorch=1.3.0"; channel = "pytorch")
+    Conda.add("torchvision=0.4.1"; channel = "pytorch")
 
-Conda.add("cpuonly=1.0"; channel = "pytorch")
-Conda.add("pytorch=1.3.0"; channel = "pytorch")
-Conda.add("torchvision=0.4.1"; channel = "pytorch")
+    mktempdir() do dir
+        # clone the repository
+        repodir = mkdir(joinpath(dir, "PyTorch-CIFAR10"))
+        LibGit2.clone("https://github.com/huyvnphan/PyTorch-CIFAR10.git", repodir)
+        LibGit2.checkout!(LibGit2.GitRepo(repodir), "90325333f4da099b3a795693cfa18e64490dffe9")
 
-mktempdir() do dir
-    # create directory for results
-    datadir = joinpath(@__DIR__, "..", "data", "PyTorch-CIFAR10")
-    isdir(datadir) || mkpath(datadir)
-
-    # check if predictions exist
-    modelnames = ["densenet121", "densenet161", "densenet169", "googlenet", "inception_v3",
-                  "mobilenet_v2", "resnet_orig", "resnet18", "resnet34", "resnet50",
-                  "vgg11_bn", "vgg13_bn", "vgg16_bn", "vgg19_bn"]
-    let datadir = datadir
-        filter!(modelnames) do name
-            !isfile(joinpath(datadir, "$name.csv"))
+        # copy pretrained weights to the correct directory
+        weightsdir = joinpath(repodir, "models", "state_dicts")
+        for name in MISSING_MODELS
+            cp(joinpath(datadep"PyTorch-CIFAR10", "$name.pt"), joinpath(weightsdir, "$name.pt"))
         end
-    end
 
-    # exit if predictions and labels exist
-    isempty(modelnames) && isfile(joinpath(datadir, "labels.csv")) && return
+        # load Python packages
+        torch = pyimport("torch")
+        F = pyimport("torch.nn.functional")
+        torchvision = pyimport("torchvision")
+        transforms = pyimport("torchvision.transforms")
 
-    # clone repository
-    repodir = mkdir(joinpath(dir, "PyTorch-CIFAR10"))
-    LibGit2.clone("https://github.com/huyvnphan/PyTorch-CIFAR10.git", repodir)
-    LibGit2.checkout!(LibGit2.GitRepo(repodir), "90325333f4da099b3a795693cfa18e64490dffe9")
+        # import local models
+        pushfirst!(PyVector(pyimport("sys")."path"), repodir)
+        models = pyimport("models")
 
-    # copy pretrained weights to the correct directory
-    weightsdir = joinpath(repodir, "models", "state_dicts")
-    for name in modelnames
-        cp(joinpath(datadep"PyTorch-CIFAR10", "$name.pt"), joinpath(weightsdir, "$name.pt"))
-    end
+        # define transformation
+        transform = transforms.Compose([transforms.ToTensor(),
+                                        transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                                             [0.2023, 0.1994, 0.2010])])
 
-    # load Python packages
-    torch = pyimport("torch")
-    F = pyimport("torch.nn.functional")
-    torchvision = pyimport("torchvision")
-    transforms = pyimport("torchvision.transforms")
+        # download CIFAR-10 validation data set
+        dataset = torchvision.datasets.CIFAR10(root=joinpath(dir, "CIFAR10"), train=false,
+                                               transform=transform, download=true)
 
-    # import local models
-    pushfirst!(PyVector(pyimport("sys")."path"), repodir)
-    models = pyimport("models")
+        # extract and save labels
+        if !isfile(joinpath(DATADIR, "labels.csv"))
+            @info "extracting labels..."
 
-    # define transformation
-    transform = transforms.Compose([transforms.ToTensor(),
-                                    transforms.Normalize([0.4914, 0.4822, 0.4465],
-                                                         [0.2023, 0.1994, 0.2010])])
+            # extract labels of the validation data set
+            _, labels_py = iterate(torch.utils.data.DataLoader(dataset, batch_size=10_000, shuffle=false))[1]
 
-    # download CIFAR-10 validation data set
-    dataset = torchvision.datasets.CIFAR10(root=joinpath(dir, "CIFAR10"), train=false,
-                                           transform=transform, download=true)
+            # save labels (+1 since we need classes 1,...,n)
+            labels = pycall(labels_py."numpy", PyArray) .+ 1
+            writedlm(joinpath(datadir, "labels.csv"), labels)
+        end
 
-    # extract and save labels
-    if !isfile(joinpath(datadir, "labels.csv"))
-        @info "extracting labels..."
+        # extract predictions
+        if !isempty(MISSING_MODELS)
+            # create data loader with batches of 250 images
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=250, shuffle=false)
 
-        # extract labels of the validation data set
-        _, labels_py = iterate(torch.utils.data.DataLoader(dataset, batch_size=10_000, shuffle=false))[1]
+            cd(repodir) do
+                @pywith torch.no_grad() begin
+                    for name in MISSING_MODELS
+                        @info "extracting predictions of model $name..."
 
-        # save labels (+1 since we need classes 1,...,n)
-        labels = pycall(labels_py."numpy", PyArray) .+ 1
-        writedlm(joinpath(datadir, "labels.csv"), labels)
-    end
+                        # load model with pretrained weights
+                        model = getproperty(models, name)(pretrained=true)
 
-    # extract predictions
-    if !isempty(modelnames)
-        # create data loader with batches of 250 images
-        dataloader = torch.utils.data.DataLoader(dataset, batch_size=250, shuffle=false)
-
-        cd(repodir) do
-            @pywith torch.no_grad() begin
-                for name in modelnames
-                    @info "extracting predictions of model $name..."
-
-                    # load model with pretrained weights
-                    model = getproperty(models, name)(pretrained=true)
-
-                    # save all predictions
-                    open(joinpath(datadir, "$name.csv"), "w") do f
-                        for (images_py, _) in dataloader
-                            predictions = pycall(F.softmax(model(images_py), dim=1)."numpy", PyArray)
-                            writedlm(f, predictions, ',')
+                        # save all predictions
+                        open(joinpath(DATADIR, "$name.csv"), "w") do f
+                            for (images_py, _) in dataloader
+                                predictions = pycall(F.softmax(model(images_py), dim=1)."numpy", PyArray)
+                                writedlm(f, predictions, ',')
+                            end
                         end
                     end
                 end
             end
         end
-    end
 
-    nothing
+        nothing
+    end
 end
+
+#' We load the true labels since they are the same for every model.
+
+const LABELS = CSV.read(joinpath(DATADIR, "labels.csv");
+    header = false, delim = ',', type = Int) |> Matrix{Int} |> vec
 
 #' ## Calibration error estimates
 #'
@@ -169,60 +174,76 @@ end
 #' kernel calibration error as well as the unbiased linear estimator for a uniformly scaled
 #' exponential kernel for which the bandwidth is set with the median heuristic.
 
-function calibration_errors()
-    # do not recompute the calibration errors if a file with results exists
-    datadir = joinpath(@__DIR__, "..", "data", "PyTorch-CIFAR10")
-    file = joinpath(datadir, "errors.csv")
-    isfile(file) && return
+@everywhere function calibration_errors(rng::AbstractRNG, predictions, labels, channel)
+    # evaluate ECE estimators
+    ece_uniform = calibrationerror(ECE(UniformBinning(10)), predictions, labels)
+    put!(channel, true)
+    ece_dynamic = calibrationerror(ECE(MedianVarianceBinning(100)), predictions, labels)
+    put!(channel, true)
 
-    # load labels
-    labels = vec(readdlm(joinpath(datadir, "labels.csv"), ',', Int))
+    # compute kernel based on the median heuristic
+    kernel = median_TV_kernel(predictions)
 
-    # define the studied models
-    models = ["densenet121", "densenet161", "densenet169", "googlenet", "inception_v3",
-              "mobilenet_v2", "resnet_orig", "resnet18", "resnet34", "resnet50",
-              "vgg11_bn", "vgg13_bn", "vgg16_bn", "vgg19_bn"]
+    # evaluate SKCE estimators
+    skceb_median = calibrationerror(BiasedSKCE(kernel), predictions, labels)
+    put!(channel, true)
+    skceuq_median = calibrationerror(QuadraticUnbiasedSKCE(kernel), predictions, labels)
+    put!(channel, true)
+    skceul_median = calibrationerror(LinearUnbiasedSKCE(kernel), predictions, labels)
+    put!(channel, true)
 
-    # define arrays for the estimates
-    n = length(models)
-    ece_uniform = Vector{Float64}(undef, n)
-    ece_dynamic = Vector{Float64}(undef, n)
-    skceb_median = Vector{Float64}(undef, n)
-    skceuq_median = Vector{Float64}(undef, n)
-    skceul_median = Vector{Float64}(undef, n)
-
-    # analyze every model
-    @inbounds for i in 1:n
-        model = models[i]
-        @info "evaluating calibration error estimators for $model..."
-
-        # load predictions
-        predictions = copy(readdlm(joinpath(datadir, "$model.csv"), ',')')
-        data = (predictions, labels)
-
-        # evaluate ECE estimators
-        ece_uniform[i] = calibrationerror(ECE(UniformBinning(10)), data)
-        ece_dynamic[i] = calibrationerror(ECE(MedianVarianceBinning(10)), data)
-
-        # compute kernel based on the median heuristic
-        kernel = median_TV_kernel(predictions)
-
-        # evaluate SKCE estimators
-        skceb_median[i] = calibrationerror(BiasedSKCE(kernel), data)
-        skceuq_median[i] = calibrationerror(QuadraticUnbiasedSKCE(kernel), data)
-        skceul_median[i] = calibrationerror(LinearUnbiasedSKCE(kernel), data)
-    end
-
-    # save results
-    df = DataFrame(model = models, ECE_uniform = ece_uniform, ECE_dynamic = ece_dynamic,
-                   SKCEb_median = skceb_median, SKCEuq_median = skceuq_median,
-                   SKCEul_median = skceul_median)
-    CSV.write(file, df)
-
-    nothing
+    (
+        ECE_uniform = ece_uniform,
+        ECE_dynamic = ece_dynamic,
+        SKCEb_median = skceb_median,
+        SKCEuq_median = skceuq_median,
+        SKCEul_median = skceul_median
+    )
 end
 
-calibration_errors()
+# do not recompute the calibration errors if a file with results exists
+if isfile(joinpath(DATADIR, "errors.csv"))
+    @info "skipping calibration error estimation: output file $(joinpath(DATADIR, "errors.csv")) exists"
+else
+    # define the pool of workers, the progress bar, and its update channel
+    wp = CachingPool(workers())
+    n = length(ALL_MODELS)
+    p = Progress(5 * n, 1, "computing calibration error estimates...")
+    channel = RemoteChannel(() -> Channel{Bool}(5 * n))
+
+    local estimates
+    @sync begin
+        # update the progress bar
+        @async while take!(channel)
+            next!(p)
+        end
+
+        # compute the p-value approximations for all models
+        estimates = let rng = Random.GLOBAL_RNG, datadir = DATADIR, labels = LABELS, channel = channel
+            pmap(wp, ALL_MODELS) do model
+                # load predictions
+                rawdata = CSV.read(joinpath(datadir, "$model.csv");
+                                   header = false, transpose = true, delim = ',',
+                                   type = Float64) |> Matrix{Float64}
+                predictions = [rawdata[:, i] for i in axes(rawdata, 2)]
+
+                # copy random number generator and set seed
+                _rng = deepcopy(rng)
+                Random.seed!(_rng, 1234)
+
+                # compute approximations
+                errors = calibration_errors(_rng, predictions, labels, channel)
+                merge((model = model,), errors)
+            end
+        end
+
+        # stop progress bar
+        put!(channel, false)
+    end
+
+    @info "saving calibration error estimates..."
+    CSV.write(joinpath(DATADIR, "errors.csv"), estimates)
+end
 
 #' ## Calibration tests
 #'
@@ -232,75 +253,89 @@ calibration_errors()
 #' the asymptotic approximations for the unbiased quadratic and linear SKCE estimators
 #' used above. The results are saved in a CSV file `pvalues.csv`.
 
-@everywhere function calibration_pvalues(rng::AbstractRNG, predictions, labels)
-    data = (predictions, labels)
-
+@everywhere function calibration_pvalues(rng::AbstractRNG, predictions, labels, channel)
     # evaluate consistency resampling based estimators
-    Random.seed!(rng, 1234)
-    ece_uniform =
-        pvalue(ConsistencyTest(ECE(UniformBinning(10)), data; rng = rng))
-    Random.seed!(rng, 1234)
-    ece_dynamic =
-        pvalue(ConsistencyTest(ECE(MedianVarianceBinning(100)), data; rng = rng))
+    ece_uniform = ConsistencyTest(ECE(UniformBinning(10)), predictions, labels)
+    pvalue_ece_uniform = pvalue(ece_uniform; rng = rng)
+    put!(channel, true)
+    ece_dynamic = ConsistencyTest(ECE(MedianVarianceBinning(100)), predictions, labels)
+    pvalue_ece_dynamic = pvalue(ece_dynamic; rng = rng)
+    put!(channel, true)
 
     # compute kernel based on the median heuristic
     kernel = median_TV_kernel(predictions)
 
     # evaluate distribution-free bounds
-    skceb_median_distribution_free =
-        pvalue(DistributionFreeTest(BiasedSKCE(kernel), data))
-    skceuq_median_distribution_free =
-        pvalue(DistributionFreeTest(QuadraticUnbiasedSKCE(kernel), data))
-    skceul_median_distribution_free =
-        pvalue(DistributionFreeTest(LinearUnbiasedSKCE(kernel), data))
+    skceb_median_distribution_free = DistributionFreeTest(BiasedSKCE(kernel), predictions, labels)
+    pvalue_skceb_median_distribution_free = pvalue(skceb_median_distribution_free)
+    put!(channel, true)
+    skceuq_median_distribution_free = DistributionFreeTest(QuadraticUnbiasedSKCE(kernel), predictions, labels)
+    pvalue_skceuq_median_distribution_free = pvalue(skceuq_median_distribution_free)
+    put!(channel, true)
+    skceul_median_distribution_free = DistributionFreeTest(LinearUnbiasedSKCE(kernel), predictions, labels)
+    pvalue_skceul_median_distribution_free = pvalue(skceul_median_distribution_free)
+    put!(channel, true)
 
     # evaluate asymptotic bounds
-    Random.seed!(rng, 1234)
-    skceuq_median_asymptotic =
-        pvalue(AsymptoticQuadraticTest(kernel, data; rng = rng))
-    skceul_median_asymptotic = pvalue(AsymptoticLinearTest(kernel, data))
+    skceuq_median_asymptotic = AsymptoticQuadraticTest(kernel, predictions, labels)
+    pvalue_skceuq_median_asymptotic = pvalue(skceuq_median_asymptotic; rng = rng)
+    put!(channel, true)
+    skceul_median_asymptotic = AsymptoticLinearTest(kernel, predictions, labels)
+    pvalue_skceul_median_asymptotic = pvalue(skceul_median_asymptotic)
+    put!(channel, true)
 
-    ece_uniform, ece_dynamic, skceb_median_distribution_free,
-    skceuq_median_distribution_free, skceul_median_distribution_free,
-    skceuq_median_asymptotic, skceul_median_asymptotic
+    (
+        ECE_uniform = pvalue_ece_uniform,
+        ECE_dynamic = pvalue_ece_dynamic,
+        SKCEb_median_distribution_free = pvalue_skceb_median_distribution_free,
+        SKCEuq_median_distribution_free = pvalue_skceuq_median_distribution_free,
+        SKCEul_median_distribution_free = pvalue_skceul_median_distribution_free,
+        SKCEuq_median_asymptotic = pvalue_skceuq_median_asymptotic,
+        SKCEul_median_asymptotic = pvalue_skceul_median_asymptotic
+    )
 end
 
-function calibration_pvalues()
-    # do not recompute the p-values if a file with results exists
-    datadir = joinpath(@__DIR__, "..", "data", "PyTorch-CIFAR10")
-    file = joinpath(datadir, "pvalues.csv")
-    isfile(file) && return
-
-    # load labels
-    labels = vec(readdlm(joinpath(datadir, "labels.csv"), Int))
-
-    # define the studied models
-    models = ["densenet121", "densenet161", "densenet169", "googlenet", "inception_v3",
-              "mobilenet_v2", "resnet_orig", "resnet18", "resnet34", "resnet50",
-              "vgg11_bn", "vgg13_bn", "vgg16_bn", "vgg19_bn"]
-
-    # analyze every model
+# do not recompute the p-values if a file with results exists
+if isfile(joinpath(DATADIR, "pvalues.csv"))
+    @info "skipping p-value approximations: output file $(joinpath(DATADIR, "pvalues.csv")) exists"
+else
+    # define the pool of workers, the progress bar, and its update channel
     wp = CachingPool(workers())
-    estimates = let rng = Random.GLOBAL_RNG, datadir = datadir, labels = labels
-        pmap(wp, models) do model
-            # load predictions
-            predictions = copy(readdlm(joinpath(datadir, "$model.csv"), ',')')
+    n = length(ALL_MODELS)
+    p = Progress(7 * n, 1, "computing p-value approximations...")
+    channel = RemoteChannel(() -> Channel{Bool}(7 * n))
 
-            @info "evaluating p-value approximations for $model..."
-            estimates = calibration_pvalues(deepcopy(rng), predictions, labels)
-
-            (model, estimates...)
+    local estimates
+    @sync begin
+        # update the progress bar
+        @async while take!(channel)
+            next!(p)
         end
+
+        # compute the p-value approximations for all models
+        estimates = let rng = Random.GLOBAL_RNG, datadir = DATADIR, labels = LABELS, channel = channel
+            pmap(wp, ALL_MODELS) do model
+                # load predictions
+                rawdata = CSV.read(joinpath(datadir, "$model.csv");
+                                   header = false, transpose = true, delim = ',',
+                                   type = Float64) |> Matrix{Float64}
+                predictions = [rawdata[:, i] for i in axes(rawdata, 2)]
+
+                # copy random number generator and set seed
+                _rng = deepcopy(rng)
+                Random.seed!(_rng, 1234)
+
+                # compute approximations
+                pvalues = calibration_pvalues(_rng, predictions, labels, channel)
+                merge((model = model,), pvalues)
+            end
+        end
+
+        # stop progress bar
+        put!(channel, false)
     end
 
-    # save results
-    df = DataFrame(map(idx -> getindex.(estimates, idx), eachindex(first(estimates))),
-                   [:model, :ECE_uniform, :ECE_dynamic, :SKCEb_median_distribution_free,
-                    :SKCEuq_median_distribution_free, :SKCEul_median_distribution_free,
-                    :SKCEuq_median_asymptotic, :SKCEul_median_asymptotic])
-    CSV.write(file, df)
-
-    nothing
+    # save estimates
+    @info "saving p-value approximations..."
+    CSV.write(joinpath(DATADIR, "pvalues.csv"), estimates)
 end
-
-calibration_pvalues()

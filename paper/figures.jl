@@ -299,6 +299,102 @@ function errors()
     nothing
 end
 
+function pvalues(experiment, αᵢ, only_firstclass)
+    # initialize group plot
+    @pgf plt = GroupPlot(
+    {
+        group_style =
+        {
+            group_size = "3 by 2",
+            xlabels_at = "edge bottom",
+            ylabels_at = "edge left",
+            horizontal_sep = raw"0.1\linewidth",
+            vertical_sep = raw"0.05\linewidth",
+            xticklabels_at = "edge bottom",
+        },
+        no_markers,
+        grid = "major",
+        tick_label_style = { font = raw"\tiny" },
+        width = raw"0.3\linewidth",
+        height = raw"0.2\linewidth",
+        xticklabel_style = "/pgf/number format/fixed",
+        ylabel_style = { font = raw"\small" },
+        "every x tick scale label/.style" = {at = "{(1,0)}", anchor = "west"},
+        xmin = 0, xmax = 1, ymin = -0.1, ymax = 1.1
+    })
+
+    # define range of significance levels
+    αs = 0:0.01:1
+
+    # load file with all experimental results
+    file = joinpath(@__DIR__, "..", "experiments", "data", "pvalues",
+                    "$experiment.csv")
+    df = CSV.read(file)
+
+    # for all parameter settings
+    for m in (2, 10), π in 0:0.5:1
+        # define model
+        model = CalibrationPaperModel(m, αᵢ, π, only_firstclass)
+
+        # load p-value estimates
+        pvalues = collect_estimates(df, model)
+
+        # compute empirical CDF
+        empiricalCDF = ecdf(pvalues)
+
+        if iszero(model.π)
+            # if the model is calibrated we plot the empirical estimate of
+            # P[p(T) < \alpha | H_0] together with the diagonal of the unit square
+            @pgf ax = Axis(PlotInc({ thick }, Table(αs, empiricalCDF.(αs))),
+                           PlotInc({ dashed, thick }, Coordinates([0, 1], [0, 1])))
+        else
+            # otherwise we plot the empirical estimate for P[p(T) > \alpha | H_1]
+            @pgf ax = Axis(PlotInc({ thick }, Table(αs, 1 .- empiricalCDF.(αs))))
+        end
+
+        # add titles
+        if m == 2
+            ax["title"] = "\$\\pi = $π\$"
+        end
+
+        # add labels
+        if π == 0
+            ax["ylabel"] = "\$m = $m\$"
+        end
+
+        # add axis to group plot
+        push!(plt, ax)
+    end
+
+    # create picture
+    picture = TikzPicture(plt,
+        raw"\node[anchor=north] at ($(group c1r2.west |- group c1r2.outer south)!0.5!(group c3r2.east |- group c3r2.outer south)$){significance level};",
+        raw"\node[anchor=south, rotate=90] at ($(group c1r1.north -| group c1r1.outer west)!0.5!(group c1r2.south -| group c1r2.outer west)$){empirical test error};")
+
+    # save histograms
+    figuresdir = joinpath(@__DIR__, "figures", "pvalues")
+    isdir(figuresdir) || mkpath(figuresdir)
+    output = joinpath(figuresdir,
+                      "$(experiment)_alpha_i=$(αᵢ)_only_firstclass=$(only_firstclass).tex")
+    pgfsave(output, picture; include_preamble = false)
+
+    nothing
+end
+
+function pvalues()
+    for only_firstclass in (true, false), αᵢ in (0.1, 1.0),
+        experiment in ("ECE_uniform", "ECE_dynamic",
+                       "SKCEuq_mean_distribution_free", "SKCEuq_median_distribution_free",
+                       "SKCEul_mean_distribution_free", "SKCEul_median_distribution_free",
+                       "SKCEb_mean_distribution_free", "SKCEb_median_distribution_free",
+                       "SKCEuq_mean_asymptotic", "SKCEuq_median_asymptotic",
+                       "SKCEul_mean_asymptotic", "SKCEul_median_asymptotic")
+        pvalues(experiment, αᵢ, only_firstclass)
+    end
+
+    nothing
+end
+
 function cifar10_errors_comparison()
     # dictionary of labels
     labels = Dict("densenet121" => "DenseNet121", "densenet161" => "DenseNet161",
@@ -329,6 +425,7 @@ function cifar10_errors_comparison()
         xticklabels = [labels[model] for model in df[!, :model]],
         xtick = "data",
         xticklabel_style = { rotate = 45, anchor = "east", font = raw"\tiny" },
+        scale_ticks_below_exponent = 0,
         legend_style =
         {
             cells = { anchor = "west" },
@@ -367,7 +464,7 @@ function cifar10_errors_comparison()
     picture = TikzPicture(
         raw"\pgfplotstableread[col sep=comma, header=true]{" * file * raw"}\datatable",
         plt,
-        raw"\node[anchor=south, rotate=90] at ($(group c1r1.north -| group c1r1.outer west)!0.5!(group c1r2.south -| group c1r2.outer west)$){calibration error estimate};")
+        raw"\node[anchor=south, rotate=90, yshift=1em] at ($(group c1r1.north -| group c1r1.outer west)!0.5!(group c1r2.south -| group c1r2.outer west)$){calibration error estimate};")
 
     # save plot
     figuresdir = joinpath(@__DIR__, "figures", "PyTorch-CIFAR10")

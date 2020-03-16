@@ -64,3 +64,9 @@ julia --project=.. -e 'using Weave; weave("EXPERIMENT.jl"; out_path = joinpath("
 ```
 It is recommended to perform the experiments and to make sure that the results
 are saved to the subfolder `data` before generating the HTML file.
+
+Similarly, the corresponding Jupyter notebooks can be regenerated and updated by running
+```shell
+cd scripts
+julia --project=.. -e 'using Weave; notebook("EXPERIMENT.jl"; out_path = joinpath("..", "notebooks"))'
+```
