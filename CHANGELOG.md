@@ -8,6 +8,8 @@
 
 - Add figures with results of p-value experiments to the supplementary material of the paper
 
+- Add Jupyter notebooks
+
 ### Changed
 
 - Update package versions
